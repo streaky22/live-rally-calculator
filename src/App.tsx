@@ -45,6 +45,10 @@ export default function App() {
 
   // Authentication listener
   useEffect(() => {
+    if (!auth) {
+      console.error("Firebase Auth is not initialized.");
+      return;
+    }
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
     });
@@ -53,6 +57,10 @@ export default function App() {
 
   // Real-time Firestore listener
   useEffect(() => {
+    if (!db) {
+      console.error("Firebase DB is not initialized.");
+      return;
+    }
     const unsubscribe = onSnapshot(doc(db, 'rallies', 'main'), (docSnap) => {
       if (docSnap.exists()) {
         const data = docSnap.data();
@@ -83,7 +91,7 @@ export default function App() {
       setRally((prev) => {
         const next = action(prev);
         // Write to Firestore asynchronously, stripping undefined values
-        if (user) {
+        if (user && db) {
           const cleanNext = JSON.parse(JSON.stringify(next));
           setDoc(doc(db, 'rallies', 'main'), cleanNext).catch(console.error);
         }
@@ -91,7 +99,7 @@ export default function App() {
       });
     } else {
       setRally(action);
-      if (user) {
+      if (user && db) {
         const cleanNext = JSON.parse(JSON.stringify(action));
         setDoc(doc(db, 'rallies', 'main'), cleanNext).catch(console.error);
       }
@@ -175,6 +183,11 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-gray-100 text-gray-900 font-sans">
+      {!db && (
+        <div className="bg-red-600 text-white px-4 py-3 text-center text-sm font-medium">
+          ⚠️ <strong>Atención:</strong> La base de datos no está conectada. Si estás viendo esto en Vercel, necesitas configurar las variables de entorno de Firebase en los ajustes de tu proyecto en Vercel.
+        </div>
+      )}
       <header className="bg-slate-900 text-white shadow-md">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
