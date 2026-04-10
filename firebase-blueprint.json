@@ -1,0 +1,26 @@
+{
+  "entities": {
+    "Rally": {
+      "title": "Rally",
+      "description": "Main rally data object containing all configuration and times",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "participants": { "type": "array" },
+        "stages": { "type": "array" },
+        "timeControls": { "type": "array" },
+        "penaltyConfigs": { "type": "array" },
+        "stageTimes": { "type": "array" },
+        "tcPenalties": { "type": "array" }
+      },
+      "required": ["id", "name"]
+    }
+  },
+  "firestore": {
+    "/rallies/{rallyId}": {
+      "schema": { "$ref": "#/entities/Rally" },
+      "description": "Stores the rally data"
+    }
+  }
+}

@@ -1,0 +1,35 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper Functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isAdmin() {
+      // Allow the specific user email to be admin (case insensitive)
+      let isDefaultAdmin = isAuthenticated() && request.auth.token.email.lower() == "antoniojosealiagamolina@gmail.com" && request.auth.token.email_verified == true;
+      
+      // Check if the user's email is in the allowedEmails array in the settings/admins document
+      let adminsDoc = /databases/$(database)/documents/settings/admins;
+      let isListedAdmin = isAuthenticated() && exists(adminsDoc) && ('allowedEmails' in get(adminsDoc).data) && (request.auth.token.email.lower() in get(adminsDoc).data.allowedEmails);
+      
+      return isDefaultAdmin || isListedAdmin;
+    }
+
+    match /rallies/{rallyId} {
+      // Anyone can read the rally data (Public View)
+      allow read: if true;
+      
+      // Only the admin can create or update the rally data
+      allow create, update, delete: if isAdmin();
+    }
+    
+    match /settings/admins {
+      // Only admins can read and write the admins list
+      allow read, write: if isAdmin();
+    }
+  }
+}

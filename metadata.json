@@ -1,0 +1,5 @@
+{
+  "name": "test live calculadora rally",
+  "description": "Rally timing and results management system with admin panel and public view.",
+  "requestFramePermissions": []
+}
