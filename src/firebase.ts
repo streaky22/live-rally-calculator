@@ -50,9 +50,17 @@ export { db, auth, googleProvider, secondaryAuth };
 export const signInWithGoogle = async () => {
   if (!auth) return;
   try {
-    await signInWithPopup(auth, googleProvider);
+    const result = await signInWithPopup(auth, googleProvider);
+    const user = result.user;
+    
+    // Restrict Google Login to the owner
+    if (user.email?.toLowerCase() !== 'antoniojosealiagamolina@gmail.com') {
+      await signOut(auth);
+      throw new Error("Acceso denegado. Solo el propietario puede usar el acceso con Google.");
+    }
   } catch (error) {
     console.error("Error signing in with Google", error);
+    throw error;
   }
 };
 
