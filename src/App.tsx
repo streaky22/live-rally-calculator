@@ -81,10 +81,12 @@ export default function App() {
         } as Rally);
       } else {
         // If it doesn't exist in Firestore, initialize it
+        setRally(INITIAL_RALLY);
         setDoc(doc(db, 'rallies', 'main'), INITIAL_RALLY).catch(console.error);
       }
     }, (error) => {
       console.error("Error fetching rally data:", error);
+      setRally(INITIAL_RALLY); // Fallback on error
     });
 
     return () => unsubscribe();
