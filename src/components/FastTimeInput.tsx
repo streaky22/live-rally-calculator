@@ -66,8 +66,8 @@ export const FastTimeInput: React.FC<FastTimeInputProps> = ({ value, onChange, c
         onChange={handleChange}
         disabled={disabled}
         className={`font-mono text-sm px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 w-32 text-center tracking-widest ${
-          disabled ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed' :
-          error ? 'border-red-500 bg-red-50 text-red-700' : 'border-gray-300 bg-white text-gray-900'
+          disabled ? 'bg-gray-100 dark:bg-slate-950 text-gray-400 border-gray-200 dark:border-slate-700 cursor-not-allowed' :
+          error ? 'border-red-500 bg-red-50 text-red-700' : 'border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-gray-900 dark:text-gray-100'
         } ${className}`}
         placeholder="MM:SS.mmm"
       />

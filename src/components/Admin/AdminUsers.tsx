@@ -2,8 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { db, secondaryAuth, createUserWithEmailAndPassword } from '../../firebase';
 import { doc, onSnapshot, setDoc } from 'firebase/firestore';
 import { Trash2, UserPlus, ShieldAlert, CheckCircle2, AlertCircle } from 'lucide-react';
+import { useLanguage } from '../../contexts/LanguageContext';
 
 export const AdminUsers: React.FC = () => {
+  const { t } = useLanguage();
   const [emails, setEmails] = useState<string[]>([]);
   const [newUsername, setNewUsername] = useState('');
   const [newPassword, setNewPassword] = useState('');
@@ -26,12 +28,12 @@ export const AdminUsers: React.FC = () => {
       setError(null);
     }, (err) => {
       console.error("Error fetching admins:", err);
-      setError("No tienes permisos para ver o modificar los administradores.");
+      setError(t('noPermissionAdmins'));
       setLoading(false);
     });
 
     return () => unsubscribe();
-  }, []);
+  }, [t]);
 
   const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -42,7 +44,7 @@ export const AdminUsers: React.FC = () => {
     const emailToAdd = `${newUsername.toLowerCase().trim()}@rally.local`;
     
     if (emails.includes(emailToAdd)) {
-      setFormMessage({ type: 'error', text: 'Este usuario ya tiene permisos de administrador.' });
+      setFormMessage({ type: 'error', text: t('userAlreadyAdmin') });
       return;
     }
 
@@ -57,17 +59,17 @@ export const AdminUsers: React.FC = () => {
       
       setNewUsername('');
       setNewPassword('');
-      setFormMessage({ type: 'success', text: `Usuario "${newUsername}" creado con éxito.` });
+      setFormMessage({ type: 'success', text: t('userCreatedSuccess').replace('{username}', newUsername) });
     } catch (err: any) {
       console.error("Error adding admin:", err);
       if (err.code === 'auth/email-already-in-use') {
-        setFormMessage({ type: 'error', text: 'El usuario ya existe en el sistema.' });
+        setFormMessage({ type: 'error', text: t('userAlreadyExists') });
       } else if (err.code === 'auth/weak-password') {
-        setFormMessage({ type: 'error', text: 'La contraseña debe tener al menos 6 caracteres.' });
+        setFormMessage({ type: 'error', text: t('passwordMinLength') });
       } else if (err.code === 'auth/operation-not-allowed') {
-        setFormMessage({ type: 'error', text: 'ATENCIÓN: Debes ir a la consola de Firebase -> Authentication -> Sign-in method y habilitar "Correo electrónico/Contraseña".' });
+        setFormMessage({ type: 'error', text: t('enableEmailPassword') });
       } else {
-        setFormMessage({ type: 'error', text: `Error al crear el usuario: ${err.message}` });
+        setFormMessage({ type: 'error', text: `${t('errorCreatingUser')}: ${err.message}` });
       }
     }
   };
@@ -78,21 +80,21 @@ export const AdminUsers: React.FC = () => {
       const updated = emails.filter(e => e !== userToDelete);
       await setDoc(doc(db, 'settings', 'admins'), { allowedEmails: updated });
       setUserToDelete(null);
-      setFormMessage({ type: 'success', text: 'Usuario eliminado correctamente.' });
+      setFormMessage({ type: 'success', text: t('userDeletedSuccess') });
     } catch (err) {
       console.error("Error removing admin:", err);
-      setFormMessage({ type: 'error', text: 'Error al eliminar administrador.' });
+      setFormMessage({ type: 'error', text: t('errorDeletingAdmin') });
       setUserToDelete(null);
     }
   };
 
-  if (loading) return <div className="p-6 text-gray-500">Cargando administradores...</div>;
+  if (loading) return <div className="p-6 text-gray-500 dark:text-gray-400">{t('loadingAdmins')}</div>;
 
   if (error) return (
     <div className="p-6 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3">
       <ShieldAlert className="text-red-500 mt-0.5" size={20} />
       <div>
-        <h3 className="text-red-800 font-medium">Acceso Denegado</h3>
+        <h3 className="text-red-800 font-medium">{t('accessDenied')}</h3>
         <p className="text-red-600 text-sm mt-1">{error}</p>
       </div>
     </div>
@@ -101,32 +103,32 @@ export const AdminUsers: React.FC = () => {
   return (
     <div className="space-y-6">
       <div>
-        <h3 className="text-lg font-medium text-gray-900 mb-1">Gestión de Administradores</h3>
-        <p className="text-sm text-gray-500">
-          Crea usuarios y contraseñas para que otras personas puedan editar los tiempos del rally.
+        <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-1">{t('adminManagement')}</h3>
+        <p className="text-sm text-gray-500 dark:text-gray-400">
+          {t('adminManagementDesc')}
         </p>
       </div>
 
       <form onSubmit={handleAdd} className="flex flex-col sm:flex-row gap-3 max-w-2xl items-end">
         <div className="flex-1">
-          <label className="block text-xs font-medium text-gray-700 mb-1">Nombre de Usuario</label>
+          <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">{t('username')}</label>
           <input
             type="text"
             value={newUsername}
             onChange={(e) => setNewUsername(e.target.value)}
             placeholder="ej. crono1"
-            className="w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 sm:text-sm p-2 border"
+            className="w-full rounded-md border-gray-300 dark:border-slate-600 shadow-sm focus:border-orange-500 focus:ring-orange-500 sm:text-sm p-2 border"
             required
           />
         </div>
         <div className="flex-1">
-          <label className="block text-xs font-medium text-gray-700 mb-1">Contraseña (mín. 6 caracteres)</label>
+          <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">{t('passwordMinLength')}</label>
           <input
             type="password"
             value={newPassword}
             onChange={(e) => setNewPassword(e.target.value)}
             placeholder="••••••"
-            className="w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 sm:text-sm p-2 border"
+            className="w-full rounded-md border-gray-300 dark:border-slate-600 shadow-sm focus:border-orange-500 focus:ring-orange-500 sm:text-sm p-2 border"
             required
             minLength={6}
           />
@@ -136,7 +138,7 @@ export const AdminUsers: React.FC = () => {
           className="inline-flex items-center gap-2 px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-orange-600 hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 h-[38px]"
         >
           <UserPlus size={16} />
-          Crear Usuario
+          {t('createUser')}
         </button>
       </form>
 
@@ -147,13 +149,13 @@ export const AdminUsers: React.FC = () => {
         </div>
       )}
 
-      <div className="bg-white shadow overflow-hidden sm:rounded-md border border-gray-200 max-w-2xl">
-        <ul className="divide-y divide-gray-200">
-          <li className="px-4 py-4 flex items-center justify-between bg-gray-50">
+      <div className="bg-white dark:bg-slate-900 shadow overflow-hidden sm:rounded-md border border-gray-200 dark:border-slate-700 max-w-2xl">
+        <ul className="divide-y divide-gray-200 dark:divide-slate-700">
+          <li className="px-4 py-4 flex items-center justify-between bg-gray-50 dark:bg-slate-800/50">
             <div className="flex items-center">
-              <span className="text-sm font-medium text-gray-900">AntonioJoseAliagaMolina@gmail.com</span>
+              <span className="text-sm font-medium text-gray-900 dark:text-gray-100">AntonioJoseAliagaMolina@gmail.com</span>
               <span className="ml-3 px-2.5 py-0.5 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                Propietario
+                {t('owner')}
               </span>
             </div>
           </li>
@@ -162,19 +164,19 @@ export const AdminUsers: React.FC = () => {
             const displayEmail = isCustomUser ? email.replace('@rally.local', '') : email;
             
             return (
-              <li key={email} className="px-4 py-4 flex items-center justify-between hover:bg-gray-50 transition-colors">
+              <li key={email} className="px-4 py-4 flex items-center justify-between hover:bg-gray-50 dark:bg-slate-800/50 transition-colors">
                 <div className="flex items-center gap-2">
-                  <span className="text-sm text-gray-900 font-medium">{displayEmail}</span>
+                  <span className="text-sm text-gray-900 dark:text-gray-100 font-medium">{displayEmail}</span>
                   {isCustomUser && (
                     <span className="px-2 py-0.5 inline-flex text-[10px] leading-4 font-semibold rounded-full bg-blue-100 text-blue-800">
-                      Usuario Local
+                      {t('localUser')}
                     </span>
                   )}
                 </div>
                 <button
                   onClick={() => setUserToDelete(email)}
                   className="text-red-500 hover:text-red-700 p-1.5 rounded-md hover:bg-red-100 transition-colors"
-                  title="Eliminar acceso"
+                  title={t('removeAccess')}
                 >
                   <Trash2 size={18} />
                 </button>
@@ -182,8 +184,8 @@ export const AdminUsers: React.FC = () => {
             );
           })}
           {emails.length === 0 && (
-            <li className="px-4 py-8 text-center text-sm text-gray-500">
-              No hay administradores adicionales configurados.
+            <li className="px-4 py-8 text-center text-sm text-gray-500 dark:text-gray-400">
+              {t('noAdditionalAdmins')}
             </li>
           )}
         </ul>
@@ -191,23 +193,23 @@ export const AdminUsers: React.FC = () => {
 
       {userToDelete && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-xl max-w-md w-full p-6">
-            <h3 className="text-lg font-bold text-gray-900 mb-2">Eliminar Usuario</h3>
-            <p className="text-gray-600 mb-6">
-              ¿Seguro que quieres quitar el acceso a <strong>{userToDelete.replace('@rally.local', '')}</strong>?
+          <div className="bg-white dark:bg-slate-900 rounded-xl shadow-xl max-w-md w-full p-6">
+            <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-2">{t('deleteUser')}</h3>
+            <p className="text-gray-600 dark:text-gray-400 mb-6">
+              {t('confirmDeleteUser').replace('{username}', userToDelete.replace('@rally.local', ''))}
             </p>
             <div className="flex justify-end gap-3">
               <button 
                 onClick={() => setUserToDelete(null)}
-                className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-md transition-colors font-medium"
+                className="px-4 py-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:bg-slate-950 rounded-md transition-colors font-medium"
               >
-                Cancelar
+                {t('cancel')}
               </button>
               <button 
                 onClick={confirmRemove}
                 className="px-4 py-2 bg-red-600 text-white hover:bg-red-700 rounded-md transition-colors font-medium"
               >
-                Eliminar
+                {t('delete')}
               </button>
             </div>
           </div>

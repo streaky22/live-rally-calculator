@@ -2,12 +2,14 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Rally, StageTime } from '../../types';
 import { FastTimeInput } from '../FastTimeInput';
 import { Check, Save, ChevronDown, X } from 'lucide-react';
+import { useLanguage } from '../../contexts/LanguageContext';
 
 const PenaltySelect: React.FC<{
   rally: Rally;
   selectedIds: string[];
   onChange: (id: string) => void;
 }> = ({ rally, selectedIds, onChange }) => {
+  const { t } = useLanguage();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -27,27 +29,27 @@ const PenaltySelect: React.FC<{
     <div className="relative" ref={ref}>
       <button 
         onClick={() => setOpen(!open)} 
-        className="w-full text-left px-3 py-2 border border-gray-300 rounded-md bg-white text-sm flex justify-between items-center shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+        className="w-full text-left px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-900 text-sm flex justify-between items-center shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
       >
-        <span className="truncate text-gray-700">
-          {selectedIds.filter(id => timePenalties.some(p => p.id === id)).length === 0 ? 'No Penalty' : `${selectedIds.filter(id => timePenalties.some(p => p.id === id)).length} selected`}
+        <span className="truncate text-gray-700 dark:text-gray-300">
+          {selectedIds.filter(id => timePenalties.some(p => p.id === id)).length === 0 ? t('noPenalty') : `${selectedIds.filter(id => timePenalties.some(p => p.id === id)).length} ${t('selected')}`}
         </span>
         <ChevronDown size={16} className="text-gray-400" />
       </button>
       {open && (
-        <div className="absolute z-10 mt-1 w-64 bg-white border border-gray-200 rounded-md shadow-lg p-2 max-h-48 overflow-y-auto">
+        <div className="absolute z-10 mt-1 w-64 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-md shadow-lg p-2 max-h-48 overflow-y-auto">
           {timePenalties.length === 0 ? (
-            <div className="text-xs text-gray-500 p-2 italic">No time penalties defined</div>
+            <div className="text-xs text-gray-500 dark:text-gray-400 p-2 italic">{t('noTimePenalties')}</div>
           ) : (
             timePenalties.map(pen => (
-              <label key={pen.id} className="flex items-center gap-2 p-2 hover:bg-gray-50 cursor-pointer text-sm rounded-md">
+              <label key={pen.id} className="flex items-center gap-2 p-2 hover:bg-gray-50 dark:bg-slate-800/50 cursor-pointer text-sm rounded-md">
                 <input 
                   type="checkbox" 
                   checked={selectedIds.includes(pen.id)} 
                   onChange={() => onChange(pen.id)} 
-                  className="rounded border-gray-300 text-orange-600 focus:ring-orange-500"
+                  className="rounded border-gray-300 dark:border-slate-600 text-orange-600 focus:ring-orange-500"
                 />
-                <span className="text-gray-700">{pen.name}</span>
+                <span className="text-gray-700 dark:text-gray-300">{pen.name}</span>
               </label>
             ))
           )}
@@ -58,6 +60,7 @@ const PenaltySelect: React.FC<{
 };
 
 export const AdminTimeEntry: React.FC<{ rally: Rally; setRally: React.Dispatch<React.SetStateAction<Rally>> }> = ({ rally, setRally }) => {
+  const { t } = useLanguage();
   const [activeStageId, setActiveStageId] = useState<string>(rally.stages[0]?.id || '');
   const [localTimes, setLocalTimes] = useState<Record<string, number | null>>({});
   const [localPenalties, setLocalPenalties] = useState<Record<string, string[]>>({});
@@ -123,7 +126,7 @@ export const AdminTimeEntry: React.FC<{ rally: Rally; setRally: React.Dispatch<R
 
   const handleSuperRallyToggle = (participantId: string) => {
     if (!superRallyConfig) {
-      alert("Please define a Super Rally penalty in the Penalties tab first.");
+      alert(t('defineSuperRally'));
       return;
     }
     setLocalPenalties(prev => {
@@ -190,17 +193,17 @@ export const AdminTimeEntry: React.FC<{ rally: Rally; setRally: React.Dispatch<R
   };
 
   if (rally.stages.length === 0) {
-    return <div className="text-center py-8 text-gray-500">Please add stages first in the "Rally & Stages" tab.</div>;
+    return <div className="text-center py-8 text-gray-500 dark:text-gray-400">{t('addStagesFirst')}</div>;
   }
 
   if (rally.participants.length === 0) {
-    return <div className="text-center py-8 text-gray-500">Please add participants first in the "Participants" tab.</div>;
+    return <div className="text-center py-8 text-gray-500 dark:text-gray-400">{t('addParticipantsFirst')}</div>;
   }
 
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-4">
-        <h3 className="text-lg font-semibold text-gray-800">Enter Stage Times</h3>
+        <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200">{t('enterStageTimes')}</h3>
         <div className="flex gap-2 overflow-x-auto pb-2">
           {rally.stages.map(stage => (
             <button
@@ -209,7 +212,7 @@ export const AdminTimeEntry: React.FC<{ rally: Rally; setRally: React.Dispatch<R
               className={`px-4 py-2 rounded-md text-sm font-bold transition-colors whitespace-nowrap ${
                 activeStageId === stage.id
                   ? 'bg-slate-800 text-white'
-                  : 'bg-white text-slate-700 border border-gray-200 hover:bg-gray-50'
+                  : 'bg-white dark:bg-slate-900 text-slate-700 border border-gray-200 dark:border-slate-700 hover:bg-gray-50 dark:bg-slate-800/50'
               }`}
             >
               {stage.identifier} - {stage.name}
@@ -221,31 +224,31 @@ export const AdminTimeEntry: React.FC<{ rally: Rally; setRally: React.Dispatch<R
       <div className="overflow-x-auto overflow-y-visible pb-32">
         <table className="w-full text-left border-collapse">
           <thead>
-            <tr className="bg-gray-50 text-gray-500 text-xs uppercase tracking-wider border-b border-gray-200">
-              <th className="px-4 py-3 font-medium">Driver / Co-Driver</th>
-              <th className="px-4 py-3 font-medium">Car</th>
-              <th className="px-4 py-3 font-medium w-48 text-center">Status</th>
-              <th className="px-4 py-3 font-medium w-48">Time</th>
-              <th className="px-4 py-3 font-medium w-64">Penalties</th>
-              <th className="px-4 py-3 font-medium w-24 text-center">Action</th>
+            <tr className="bg-gray-50 dark:bg-slate-800/50 text-gray-500 dark:text-gray-400 text-xs uppercase tracking-wider border-b border-gray-200 dark:border-slate-700">
+              <th className="px-4 py-3 font-medium">{t('driverCoDriver')}</th>
+              <th className="px-4 py-3 font-medium">{t('car')}</th>
+              <th className="px-4 py-3 font-medium w-48 text-center">{t('status')}</th>
+              <th className="px-4 py-3 font-medium w-48">{t('time')}</th>
+              <th className="px-4 py-3 font-medium w-64">{t('penalties')}</th>
+              <th className="px-4 py-3 font-medium w-24 text-center">{t('action')}</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-100">
+          <tbody className="divide-y divide-gray-100 dark:divide-slate-800">
             {rally.participants.map(p => {
               const isRetired = retiredParticipantIds.has(p.id);
               
               if (isRetired) {
                 return (
-                  <tr key={p.id} className="bg-gray-50 opacity-60">
+                  <tr key={p.id} className="bg-gray-50 dark:bg-slate-800/50 opacity-60">
                     <td className="px-4 py-4">
-                      <div className="font-semibold text-gray-900 line-through">{p.driverName}</div>
-                      {p.hasCoDriver && <div className="text-xs text-gray-500 line-through">{p.coDriverName}</div>}
+                      <div className="font-semibold text-gray-900 dark:text-gray-100 line-through">{p.driverName}</div>
+                      {p.hasCoDriver && <div className="text-xs text-gray-500 dark:text-gray-400 line-through">{p.coDriverName}</div>}
                     </td>
-                    <td className="px-4 py-4 text-sm text-gray-600 line-through">
+                    <td className="px-4 py-4 text-sm text-gray-600 dark:text-gray-400 line-through">
                       {p.car}
                     </td>
                     <td className="px-4 py-4 text-center" colSpan={4}>
-                      <span className="text-red-600 font-bold text-sm uppercase tracking-wider">Retired (DNF in previous stage)</span>
+                      <span className="text-red-600 font-bold text-sm uppercase tracking-wider">{t('retired')}</span>
                     </td>
                   </tr>
                 );
@@ -261,12 +264,12 @@ export const AdminTimeEntry: React.FC<{ rally: Rally; setRally: React.Dispatch<R
               const inputDisabled = isDnf || hasSuperRally;
               
               return (
-                <tr key={p.id} className={`transition-colors ${isConfirmed ? 'bg-green-50/30' : 'hover:bg-gray-50'}`}>
+                <tr key={p.id} className={`transition-colors ${isConfirmed ? 'bg-green-50/30' : 'hover:bg-gray-50 dark:bg-slate-800/50'}`}>
                   <td className="px-4 py-4">
-                    <div className="font-semibold text-gray-900">{p.driverName}</div>
-                    {p.hasCoDriver && <div className="text-xs text-gray-500">{p.coDriverName}</div>}
+                    <div className="font-semibold text-gray-900 dark:text-gray-100">{p.driverName}</div>
+                    {p.hasCoDriver && <div className="text-xs text-gray-500 dark:text-gray-400">{p.coDriverName}</div>}
                   </td>
-                  <td className="px-4 py-4 text-sm text-gray-600">
+                  <td className="px-4 py-4 text-sm text-gray-600 dark:text-gray-400">
                     {p.car}
                   </td>
                   <td className="px-4 py-4 text-center">
@@ -274,7 +277,7 @@ export const AdminTimeEntry: React.FC<{ rally: Rally; setRally: React.Dispatch<R
                       <button
                         onClick={() => handleDnfToggle(p.id)}
                         className={`px-3 py-1 rounded-md text-xs font-bold transition-colors ${
-                          isDnf ? 'bg-red-600 text-white' : 'bg-gray-200 text-gray-600 hover:bg-gray-300'
+                          isDnf ? 'bg-red-600 text-white' : 'bg-gray-200 text-gray-600 dark:text-gray-400 hover:bg-gray-300'
                         }`}
                       >
                         DNF
@@ -282,7 +285,7 @@ export const AdminTimeEntry: React.FC<{ rally: Rally; setRally: React.Dispatch<R
                       <button
                         onClick={() => handleSuperRallyToggle(p.id)}
                         className={`px-3 py-1 rounded-md text-xs font-bold transition-colors ${
-                          hasSuperRally ? 'bg-purple-600 text-white' : 'bg-gray-200 text-gray-600 hover:bg-gray-300'
+                          hasSuperRally ? 'bg-purple-600 text-white' : 'bg-gray-200 text-gray-600 dark:text-gray-400 hover:bg-gray-300'
                         }`}
                       >
                         SR+
@@ -313,9 +316,9 @@ export const AdminTimeEntry: React.FC<{ rally: Rally; setRally: React.Dispatch<R
                           ? 'bg-green-100 text-green-600 cursor-default' 
                           : canSave 
                             ? 'bg-orange-100 text-orange-600 hover:bg-orange-200' 
-                            : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                            : 'bg-gray-100 dark:bg-slate-950 text-gray-400 cursor-not-allowed'
                       }`}
-                      title={isConfirmed ? "Saved" : "Save Time"}
+                      title={isConfirmed ? t('saved') : t('saveTime')}
                     >
                       {isConfirmed ? <Check size={20} /> : <Save size={20} />}
                     </button>

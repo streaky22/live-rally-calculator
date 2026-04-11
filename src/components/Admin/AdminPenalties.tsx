@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { Rally, PenaltyConfig, PenaltyType, CalculationMethod } from '../../types';
 import { Edit2, Save, X } from 'lucide-react';
+import { useLanguage } from '../../contexts/LanguageContext';
 
 export const AdminPenalties: React.FC<{ rally: Rally; setRally: React.Dispatch<React.SetStateAction<Rally>> }> = ({ rally, setRally }) => {
+  const { t } = useLanguage();
   const [name, setName] = useState('');
   const [type, setType] = useState<PenaltyType>('TIME');
   const [timeValueStr, setTimeValueStr] = useState('');
@@ -71,16 +73,16 @@ export const AdminPenalties: React.FC<{ rally: Rally; setRally: React.Dispatch<R
 
   return (
     <div className="space-y-6">
-      <h3 className="text-lg font-semibold text-gray-800">Manage Penalties</h3>
+      <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200">{t('tabPenalties')}</h3>
       
-      <form onSubmit={handleAdd} className="grid grid-cols-1 md:grid-cols-4 gap-4 bg-gray-50 p-4 rounded-lg border border-gray-200">
+      <form onSubmit={handleAdd} className="grid grid-cols-1 md:grid-cols-4 gap-4 bg-gray-50 dark:bg-slate-800/50 p-4 rounded-lg border border-gray-200 dark:border-slate-700">
         <div className="md:col-span-2">
-          <label className="block text-sm font-medium text-gray-700 mb-1">Penalty Name</label>
-          <input type="text" value={name} onChange={e => setName(e.target.value)} placeholder="e.g. Jump Start" className="w-full px-3 py-2 border border-gray-300 rounded-md" required />
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('penaltyName')}</label>
+          <input type="text" value={name} onChange={e => setName(e.target.value)} placeholder="e.g. Jump Start" className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-md" required />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Type</label>
-          <select value={type} onChange={e => setType(e.target.value as PenaltyType)} className="w-full px-3 py-2 border border-gray-300 rounded-md bg-white">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('penaltyType')}</label>
+          <select value={type} onChange={e => setType(e.target.value as PenaltyType)} className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-900">
             <option value="TIME">Fixed Time</option>
             <option value="SUPER_RALLY">Super Rally (SR+)</option>
             <option value="TC_LATE">TC Late (Tarde)</option>
@@ -88,44 +90,44 @@ export const AdminPenalties: React.FC<{ rally: Rally; setRally: React.Dispatch<R
           </select>
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Time (Seconds)</label>
-          <input type="number" step="0.1" value={timeValueStr} onChange={e => setTimeValueStr(e.target.value)} placeholder="e.g. 10" className="w-full px-3 py-2 border border-gray-300 rounded-md" required />
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('penaltyValue')}</label>
+          <input type="number" step="0.1" value={timeValueStr} onChange={e => setTimeValueStr(e.target.value)} placeholder="e.g. 10" className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-md" required />
         </div>
         
         {isTC && (
           <div className="md:col-span-4">
-            <label className="block text-sm font-medium text-gray-700 mb-1">Calculation Method</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('calculationMethod')}</label>
             <div className="flex gap-4">
               <label className="flex items-center gap-2">
                 <input type="radio" checked={calculationMethod === 'FIXED'} onChange={() => setCalculationMethod('FIXED')} className="text-orange-600 focus:ring-orange-500" />
-                <span className="text-sm text-gray-700">Fixed (Apply exact seconds once)</span>
+                <span className="text-sm text-gray-700 dark:text-gray-300">{t('fixedTime')}</span>
               </label>
               <label className="flex items-center gap-2">
                 <input type="radio" checked={calculationMethod === 'PER_MINUTE'} onChange={() => setCalculationMethod('PER_MINUTE')} className="text-orange-600 focus:ring-orange-500" />
-                <span className="text-sm text-gray-700">Per Minute (Multiply seconds by minutes early/late)</span>
+                <span className="text-sm text-gray-700 dark:text-gray-300">{t('perMinute')}</span>
               </label>
             </div>
           </div>
         )}
 
         <div className="md:col-span-4 flex justify-end">
-          <button type="submit" className="bg-slate-800 text-white px-4 py-2 rounded-md hover:bg-slate-700 transition-colors">Add Penalty</button>
+          <button type="submit" className="bg-slate-800 text-white px-4 py-2 rounded-md hover:bg-slate-700 transition-colors">{t('addPenaltyConfig')}</button>
         </div>
       </form>
 
       <div className="overflow-x-auto">
         <table className="w-full text-left border-collapse">
           <thead>
-            <tr className="bg-gray-50 text-gray-500 text-xs uppercase tracking-wider border-b border-gray-200">
-              <th className="px-4 py-3 font-medium">Name</th>
-              <th className="px-4 py-3 font-medium">Type</th>
-              <th className="px-4 py-3 font-medium">Value</th>
-              <th className="px-4 py-3 font-medium text-right">Actions</th>
+            <tr className="bg-gray-50 dark:bg-slate-800/50 text-gray-500 dark:text-gray-400 text-xs uppercase tracking-wider border-b border-gray-200 dark:border-slate-700">
+              <th className="px-4 py-3 font-medium">{t('name')}</th>
+              <th className="px-4 py-3 font-medium">{t('penaltyType')}</th>
+              <th className="px-4 py-3 font-medium">{t('penaltyValue')}</th>
+              <th className="px-4 py-3 font-medium text-right">{t('actions')}</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-100">
+          <tbody className="divide-y divide-gray-100 dark:divide-slate-800">
             {rally.penaltyConfigs.length === 0 && (
-              <tr><td colSpan={4} className="px-4 py-8 text-center text-gray-500">No penalties defined.</td></tr>
+              <tr><td colSpan={4} className="px-4 py-8 text-center text-gray-500 dark:text-gray-400">{t('noPenalties')}</td></tr>
             )}
             {rally.penaltyConfigs.map(p => (
               <tr key={p.id}>
@@ -143,7 +145,7 @@ export const AdminPenalties: React.FC<{ rally: Rally; setRally: React.Dispatch<R
                       <select 
                         value={editType} 
                         onChange={e => setEditType(e.target.value as PenaltyType)} 
-                        className="w-full px-2 py-1 border border-orange-300 rounded-md focus:outline-none focus:ring-1 focus:ring-orange-500 bg-white"
+                        className="w-full px-2 py-1 border border-orange-300 rounded-md focus:outline-none focus:ring-1 focus:ring-orange-500 bg-white dark:bg-slate-900"
                       >
                         <option value="TIME">Fixed Time</option>
                         <option value="SUPER_RALLY">Super Rally</option>
@@ -160,12 +162,12 @@ export const AdminPenalties: React.FC<{ rally: Rally; setRally: React.Dispatch<R
                           onChange={e => setEditTimeValueStr(e.target.value)} 
                           className="w-20 px-2 py-1 border border-orange-300 rounded-md focus:outline-none focus:ring-1 focus:ring-orange-500" 
                         />
-                        <span className="text-sm text-gray-500">s</span>
+                        <span className="text-sm text-gray-500 dark:text-gray-400">s</span>
                         {(editType === 'TC_LATE' || editType === 'TC_EARLY') && (
                           <select 
                             value={editCalculationMethod} 
                             onChange={e => setEditCalculationMethod(e.target.value as CalculationMethod)} 
-                            className="ml-1 px-1 py-1 border border-orange-300 rounded-md focus:outline-none focus:ring-1 focus:ring-orange-500 bg-white text-xs"
+                            className="ml-1 px-1 py-1 border border-orange-300 rounded-md focus:outline-none focus:ring-1 focus:ring-orange-500 bg-white dark:bg-slate-900 text-xs"
                           >
                             <option value="FIXED">Fixed</option>
                             <option value="PER_MINUTE">/ min</option>
@@ -175,10 +177,10 @@ export const AdminPenalties: React.FC<{ rally: Rally; setRally: React.Dispatch<R
                     </td>
                     <td className="px-4 py-2 text-right">
                       <div className="flex items-center justify-end gap-2">
-                        <button onClick={() => saveEdit(p.id)} className="text-green-600 hover:text-green-800 p-1" title="Save">
+                        <button onClick={() => saveEdit(p.id)} className="text-green-600 hover:text-green-800 p-1" title={t('save')}>
                           <Save size={18} />
                         </button>
-                        <button onClick={cancelEdit} className="text-gray-500 hover:text-gray-700 p-1" title="Cancel">
+                        <button onClick={cancelEdit} className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:text-gray-300 p-1" title={t('cancel')}>
                           <X size={18} />
                         </button>
                       </div>
@@ -186,8 +188,8 @@ export const AdminPenalties: React.FC<{ rally: Rally; setRally: React.Dispatch<R
                   </>
                 ) : (
                   <>
-                    <td className="px-4 py-3 font-medium text-gray-900">{p.name}</td>
-                    <td className="px-4 py-3 text-gray-600">
+                    <td className="px-4 py-3 font-medium text-gray-900 dark:text-gray-100">{p.name}</td>
+                    <td className="px-4 py-3 text-gray-600 dark:text-gray-400">
                       <span className={`px-2 py-1 rounded text-xs font-medium ${
                         p.type === 'TIME' ? 'bg-blue-100 text-blue-800' : 
                         p.type === 'SUPER_RALLY' ? 'bg-purple-100 text-purple-800' :
@@ -199,7 +201,7 @@ export const AdminPenalties: React.FC<{ rally: Rally; setRally: React.Dispatch<R
                          p.type === 'TC_LATE' ? 'TC Late' : 'TC Early'}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-gray-600 font-mono text-sm">
+                    <td className="px-4 py-3 text-gray-600 dark:text-gray-400 font-mono text-sm">
                       {p.type === 'SUPER_RALLY' ? `Base +${p.timeValueMs / 1000}s` : 
                        p.calculationMethod === 'PER_MINUTE' ? `+${p.timeValueMs / 1000}s / min` :
                        `+${p.timeValueMs / 1000}s`}
@@ -207,10 +209,10 @@ export const AdminPenalties: React.FC<{ rally: Rally; setRally: React.Dispatch<R
                     <td className="px-4 py-3 text-right">
                       <div className="flex items-center justify-end gap-3">
                         <button onClick={() => startEdit(p)} className="text-blue-600 hover:text-blue-800 text-sm font-medium flex items-center gap-1">
-                          <Edit2 size={14} /> Edit
+                          <Edit2 size={14} /> {t('edit')}
                         </button>
                         <button onClick={() => handleRemove(p.id)} className="text-red-600 hover:text-red-800 text-sm font-medium">
-                          Remove
+                          {t('delete')}
                         </button>
                       </div>
                     </td>

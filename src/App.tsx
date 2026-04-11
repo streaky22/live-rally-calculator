@@ -6,11 +6,15 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { AdminPanel } from './components/AdminPanel';
 import { PublicView } from './components/PublicView';
+import { LanguageSwitcher } from './components/LanguageSwitcher';
+import { ThemeToggle } from './components/ThemeToggle';
+import { useLanguage } from './contexts/LanguageContext';
 import { Rally, PenaltyConfig } from './types';
 import { Download, Upload, Trash2, LogIn, LogOut } from 'lucide-react';
 import { db, auth, signInWithGoogle, logOut, signInWithEmailAndPassword } from './firebase';
 import { doc, onSnapshot, setDoc } from 'firebase/firestore';
 import { onAuthStateChanged, User } from 'firebase/auth';
+import { RealTimeClock } from './components/RealTimeClock';
 
 const DEFAULT_PENALTIES: PenaltyConfig[] = [
   { id: 'p1', name: 'CH Tarde', type: 'TC_LATE', timeValueMs: 10000, calculationMethod: 'PER_MINUTE' },
@@ -33,6 +37,7 @@ const INITIAL_RALLY: Rally = {
 };
 
 export default function App() {
+  const { t } = useLanguage();
   const [view, setView] = useState<'PUBLIC' | 'ADMIN'>('PUBLIC');
   const [showResetModal, setShowResetModal] = useState(false);
   const [user, setUser] = useState<User | null>(null);
@@ -159,7 +164,7 @@ export default function App() {
   const executeReset = () => {
     const freshRally: Rally = {
       id: 'r' + Date.now(),
-      name: 'Nuevo Rally',
+      name: t('newRally'),
       participants: [],
       stages: [],
       timeControls: [],
@@ -183,62 +188,64 @@ export default function App() {
       setLoginPassword('');
     } catch (error: any) {
       console.error("Login error:", error);
-      setLoginError("Usuario o contraseña incorrectos.");
+      setLoginError(t('invalidLogin'));
     }
   };
 
   if (!rally) {
     return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-100 dark:bg-slate-950 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Cargando datos del rally...</p>
+          <p className="text-gray-600 dark:text-gray-400">{t('loading')}</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 text-gray-900 font-sans">
+    <div className="min-h-screen bg-gray-100 dark:bg-slate-950 text-gray-900 dark:text-gray-100 font-sans">
       {!db && (
         <div className="bg-red-600 text-white px-4 py-3 text-center text-sm font-medium">
-          ⚠️ <strong>Atención:</strong> La base de datos no está conectada. Si estás viendo esto en Vercel, necesitas configurar las variables de entorno de Firebase en los ajustes de tu proyecto en Vercel.
+          {t('dbWarning')}
         </div>
       )}
       <header className="bg-slate-900 text-white shadow-md">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <h1 className="text-xl font-bold tracking-tight">Calculadora de Rally</h1>
-            <span className="hidden sm:inline-block text-slate-400 text-sm border-l border-slate-700 pl-3 ml-1">
-              {rally?.name || 'Cargando...'}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
+          <div className="flex items-center gap-3 flex-shrink-0">
+            <h1 className="text-xl font-bold tracking-tight hidden sm:block">{t('appTitle')}</h1>
+            <h1 className="text-xl font-bold tracking-tight sm:hidden">Rally</h1>
+            <span className="hidden lg:inline-block text-slate-400 text-sm border-l border-slate-700 pl-3 ml-1 truncate max-w-[200px]">
+              {rally?.name || t('loading')}
             </span>
           </div>
-          <div className="flex items-center gap-4">
+
+          <div className="flex items-center gap-4 flex-shrink-0 overflow-x-auto no-scrollbar ml-auto">
             {view === 'ADMIN' && user && (
               <div className="flex items-center gap-2 mr-4 border-r border-slate-700 pr-4">
                 <button 
                   onClick={handleExport}
                   className="flex items-center gap-1 text-xs font-medium text-slate-300 hover:text-white transition-colors"
-                  title="Export Rally Data"
+                  title={t('export')}
                 >
                   <Download size={16} />
-                  <span className="hidden sm:inline">Export</span>
+                  <span className="hidden sm:inline">{t('export')}</span>
                 </button>
                 <button 
                   onClick={() => fileInputRef.current?.click()}
                   className="flex items-center gap-1 text-xs font-medium text-slate-300 hover:text-white transition-colors"
-                  title="Import Rally Data"
+                  title={t('import')}
                 >
                   <Upload size={16} />
-                  <span className="hidden sm:inline">Import</span>
+                  <span className="hidden sm:inline">{t('import')}</span>
                 </button>
                 <button 
                   onClick={() => setShowResetModal(true)}
                   className="flex items-center gap-1 text-xs font-medium text-red-400 hover:text-red-300 transition-colors ml-2 pl-2 border-l border-slate-700"
-                  title="Clear All Data"
+                  title={t('clearAll')}
                 >
                   <Trash2 size={16} />
-                  <span className="hidden sm:inline">Borrar Todo</span>
+                  <span className="hidden sm:inline">{t('clearAll')}</span>
                 </button>
                 <input 
                   type="file" 
@@ -252,19 +259,19 @@ export default function App() {
             <nav className="flex gap-2 items-center">
               <button 
                 onClick={() => setView('PUBLIC')}
-                className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${view === 'PUBLIC' ? 'bg-white/20 text-white' : 'text-slate-300 hover:bg-white/10'}`}
+                className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${view === 'PUBLIC' ? 'bg-white dark:bg-slate-900/20 text-white' : 'text-slate-300 hover:bg-white dark:bg-slate-900/10'}`}
               >
-                Public View
+                {t('publicView')}
               </button>
               <button 
                 onClick={() => setView('ADMIN')}
-                className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${view === 'ADMIN' ? 'bg-white/20 text-white' : 'text-slate-300 hover:bg-white/10'}`}
+                className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${view === 'ADMIN' ? 'bg-white dark:bg-slate-900/20 text-white' : 'text-slate-300 hover:bg-white dark:bg-slate-900/10'}`}
               >
-                Admin
+                {t('admin')}
               </button>
               {user && (
                 <div className="ml-2 pl-3 border-l border-slate-700 flex items-center gap-3">
-                  <div className="hidden sm:flex items-center gap-2 text-slate-300 bg-slate-800 px-3 py-1.5 rounded-full border border-slate-700" title="Conectado">
+                  <div className="hidden sm:flex items-center gap-2 text-slate-300 bg-slate-800 px-3 py-1.5 rounded-full border border-slate-700" title={t('connected')}>
                     <div className="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]"></div>
                     <span className="text-xs font-medium">
                       {user.email?.endsWith('@rally.local') ? user.email.replace('@rally.local', '') : user.email}
@@ -273,13 +280,18 @@ export default function App() {
                   <button 
                     onClick={logOut}
                     className="flex items-center gap-1 px-3 py-1.5 rounded-md text-sm font-medium bg-red-500/20 text-red-300 hover:bg-red-500/30 transition-colors"
-                    title="Cerrar Sesión"
+                    title={t('logout')}
                   >
                     <LogOut size={16} />
-                    <span className="hidden sm:inline">Salir</span>
+                    <span className="hidden sm:inline">{t('logout')}</span>
                   </button>
                 </div>
               )}
+              <div className="hidden sm:block mx-1">
+                <RealTimeClock />
+              </div>
+              <ThemeToggle />
+              <LanguageSwitcher />
             </nav>
           </div>
         </div>
@@ -291,28 +303,28 @@ export default function App() {
             <AdminPanel rally={rally} setRally={handleSetRally} />
           ) : (
             <div className="flex flex-col items-center justify-center py-12 text-center">
-              <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-200 max-w-md w-full text-left">
-                <h2 className="text-2xl font-bold text-gray-900 mb-6 text-center">Acceso de Administrador</h2>
+              <div className="bg-white dark:bg-slate-900 p-8 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 max-w-md w-full text-left">
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6 text-center">{t('adminAccess')}</h2>
                 
                 <form onSubmit={handleCustomLogin} className="space-y-4 mb-6">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Nombre de Usuario</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('username')}</label>
                     <input 
                       type="text" 
                       value={loginUsername}
                       onChange={(e) => setLoginUsername(e.target.value)}
-                      className="w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 p-2 border"
-                      placeholder="Usuario"
+                      className="w-full rounded-md border-gray-300 dark:border-slate-600 shadow-sm focus:border-orange-500 focus:ring-orange-500 p-2 border"
+                      placeholder={t('username')}
                       required
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Contraseña</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('password')}</label>
                     <input 
                       type="password" 
                       value={loginPassword}
                       onChange={(e) => setLoginPassword(e.target.value)}
-                      className="w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 p-2 border"
+                      className="w-full rounded-md border-gray-300 dark:border-slate-600 shadow-sm focus:border-orange-500 focus:ring-orange-500 p-2 border"
                       placeholder="••••••"
                       required
                     />
@@ -327,16 +339,16 @@ export default function App() {
                     className="w-full flex items-center justify-center gap-2 bg-orange-600 text-white py-2.5 px-4 rounded-lg hover:bg-orange-700 transition-colors font-medium"
                   >
                     <LogIn size={18} />
-                    Entrar
+                    {t('login')}
                   </button>
                 </form>
 
                 <div className="relative mb-6">
                   <div className="absolute inset-0 flex items-center">
-                    <div className="w-full border-t border-gray-300"></div>
+                    <div className="w-full border-t border-gray-300 dark:border-slate-600"></div>
                   </div>
                   <div className="relative flex justify-center text-sm">
-                    <span className="px-2 bg-white text-gray-500">O accede como propietario</span>
+                    <span className="px-2 bg-white dark:bg-slate-900 text-gray-500 dark:text-gray-400">{t('orOwner')}</span>
                   </div>
                 </div>
 
@@ -346,10 +358,10 @@ export default function App() {
                       setLoginError('');
                       await signInWithGoogle();
                     } catch (error: any) {
-                      setLoginError(error.message || "Error al iniciar sesión con Google.");
+                      setLoginError(error.message || t('errorGoogle'));
                     }
                   }}
-                  className="w-full flex items-center justify-center gap-2 bg-white border border-gray-300 text-gray-700 py-2.5 px-4 rounded-lg hover:bg-gray-50 transition-colors font-medium shadow-sm"
+                  className="w-full flex items-center justify-center gap-2 bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-600 text-gray-700 dark:text-gray-300 py-2.5 px-4 rounded-lg hover:bg-gray-50 dark:bg-slate-800/50 transition-colors font-medium shadow-sm"
                 >
                   <svg className="w-5 h-5" viewBox="0 0 24 24">
                     <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
@@ -357,7 +369,7 @@ export default function App() {
                     <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
                     <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
                   </svg>
-                  Continuar con Google
+                  {t('loginGoogle')}
                 </button>
               </div>
             </div>
@@ -369,20 +381,20 @@ export default function App() {
 
       {showResetModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-xl max-w-md w-full p-6">
+          <div className="bg-white dark:bg-slate-900 rounded-xl shadow-xl max-w-md w-full p-6">
             <div className="flex items-center gap-3 mb-4">
               <div className="p-2 rounded-full bg-red-100 text-red-600">
                 <Trash2 size={24} />
               </div>
-              <h3 className="text-xl font-bold text-gray-900">Borrar todos los datos</h3>
+              <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100">Borrar todos los datos</h3>
             </div>
-            <p className="text-gray-600 mb-6">
+            <p className="text-gray-600 dark:text-gray-400 mb-6">
               ¿Estás seguro de que quieres borrar todos los datos del rally? Esta acción no se puede deshacer y eliminará todos los participantes, tramos, controles horarios y tiempos.
             </p>
             <div className="flex justify-end gap-3">
               <button 
                 onClick={() => setShowResetModal(false)}
-                className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-md transition-colors font-medium"
+                className="px-4 py-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:bg-slate-950 rounded-md transition-colors font-medium"
               >
                 Cancelar
               </button>

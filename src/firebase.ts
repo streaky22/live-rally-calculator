@@ -56,7 +56,7 @@ export const signInWithGoogle = async () => {
     // Restrict Google Login to the owner
     if (user.email?.toLowerCase() !== 'antoniojosealiagamolina@gmail.com') {
       await signOut(auth);
-      throw new Error("Acceso denegado. Solo el propietario puede usar el acceso con Google.");
+      throw new Error("Access denied. Only the owner can use Google login.");
     }
   } catch (error) {
     console.error("Error signing in with Google", error);

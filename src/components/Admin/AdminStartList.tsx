@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { Rally } from '../../types';
 import { ArrowUp, ArrowDown, GripVertical } from 'lucide-react';
+import { useLanguage } from '../../contexts/LanguageContext';
 
 export const AdminStartList: React.FC<{ rally: Rally; setRally: React.Dispatch<React.SetStateAction<Rally>> }> = ({ rally, setRally }) => {
+  const { t } = useLanguage();
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
 
@@ -61,26 +63,25 @@ export const AdminStartList: React.FC<{ rally: Rally; setRally: React.Dispatch<R
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-2">
-        <h3 className="text-lg font-semibold text-gray-800">Start List Order</h3>
-        <p className="text-sm text-gray-500">
-          Define the starting order of participants. This order will be respected in the Time Entry tab, 
-          making it easier to enter times sequentially as cars arrive. You can drag and drop rows to reorder them.
+        <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200">{t('tabStartList')}</h3>
+        <p className="text-sm text-gray-500 dark:text-gray-400">
+          {t('startListDesc')}
         </p>
       </div>
       
-      <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+      <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-lg overflow-hidden">
         <table className="w-full text-left border-collapse">
           <thead>
-            <tr className="bg-gray-50 text-gray-500 text-xs uppercase tracking-wider border-b border-gray-200">
-              <th className="px-4 py-3 font-medium w-20 text-center">Order</th>
-              <th className="px-4 py-3 font-medium">Driver / Co-Driver</th>
-              <th className="px-4 py-3 font-medium">Car</th>
-              <th className="px-4 py-3 font-medium w-32 text-center">Actions</th>
+            <tr className="bg-gray-50 dark:bg-slate-800/50 text-gray-500 dark:text-gray-400 text-xs uppercase tracking-wider border-b border-gray-200 dark:border-slate-700">
+              <th className="px-4 py-3 font-medium w-20 text-center">{t('order')}</th>
+              <th className="px-4 py-3 font-medium">{t('driverCoDriver')}</th>
+              <th className="px-4 py-3 font-medium">{t('car')}</th>
+              <th className="px-4 py-3 font-medium w-32 text-center">{t('actions')}</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-100">
+          <tbody className="divide-y divide-gray-100 dark:divide-slate-800">
             {rally.participants.length === 0 && (
-              <tr><td colSpan={4} className="px-4 py-8 text-center text-gray-500">No participants added yet.</td></tr>
+              <tr><td colSpan={4} className="px-4 py-8 text-center text-gray-500 dark:text-gray-400">{t('noParticipants')}</td></tr>
             )}
             {rally.participants.map((p, index) => (
               <tr 
@@ -91,7 +92,7 @@ export const AdminStartList: React.FC<{ rally: Rally; setRally: React.Dispatch<R
                 onDrop={(e) => handleDrop(e, index)}
                 onDragEnd={handleDragEnd}
                 className={`transition-colors cursor-move ${
-                  draggedIndex === index ? 'opacity-50 bg-gray-100' : 'hover:bg-gray-50'
+                  draggedIndex === index ? 'opacity-50 bg-gray-100 dark:bg-slate-950' : 'hover:bg-gray-50 dark:bg-slate-800/50'
                 } ${
                   dragOverIndex === index && draggedIndex !== index 
                     ? dragOverIndex > draggedIndex! 
@@ -107,25 +108,25 @@ export const AdminStartList: React.FC<{ rally: Rally; setRally: React.Dispatch<R
                   </div>
                 </td>
                 <td className="px-4 py-3">
-                  <div className="font-medium text-gray-900">{p.driverName}</div>
-                  {p.hasCoDriver && <div className="text-xs text-gray-500">{p.coDriverName}</div>}
+                  <div className="font-medium text-gray-900 dark:text-gray-100">{p.driverName}</div>
+                  {p.hasCoDriver && <div className="text-xs text-gray-500 dark:text-gray-400">{p.coDriverName}</div>}
                 </td>
-                <td className="px-4 py-3 text-gray-600">{p.car}</td>
+                <td className="px-4 py-3 text-gray-600 dark:text-gray-400">{p.car}</td>
                 <td className="px-4 py-3 text-center">
                   <div className="flex items-center justify-center gap-2">
                     <button 
                       onClick={() => moveParticipant(index, 'up')}
                       disabled={index === 0}
-                      className="p-1 text-gray-500 hover:text-orange-600 hover:bg-orange-50 rounded disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-gray-500 transition-colors"
-                      title="Move Up"
+                      className="p-1 text-gray-500 dark:text-gray-400 hover:text-orange-600 hover:bg-orange-50 rounded disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-gray-500 dark:text-gray-400 transition-colors"
+                      title={t('moveUp')}
                     >
                       <ArrowUp size={18} />
                     </button>
                     <button 
                       onClick={() => moveParticipant(index, 'down')}
                       disabled={index === rally.participants.length - 1}
-                      className="p-1 text-gray-500 hover:text-orange-600 hover:bg-orange-50 rounded disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-gray-500 transition-colors"
-                      title="Move Down"
+                      className="p-1 text-gray-500 dark:text-gray-400 hover:text-orange-600 hover:bg-orange-50 rounded disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-gray-500 dark:text-gray-400 transition-colors"
+                      title={t('moveDown')}
                     >
                       <ArrowDown size={18} />
                     </button>

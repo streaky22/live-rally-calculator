@@ -5,12 +5,21 @@ import { calculateStageResults, calculateOverallResults } from '../utils/calcula
 import { Download } from 'lucide-react';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import { useLanguage } from '../contexts/LanguageContext';
 
 export const PublicView: React.FC<{ rally: Rally }> = ({ rally }) => {
+  const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState('Start Lists');
   const [activeStageId, setActiveStageId] = useState<string>(rally.stages[0]?.id || '');
 
-  const tabs = ["Start Lists", "Overall", "Stage Times", "Stage Winners", "Penalties", "Retirements"];
+  const tabs = [
+    { id: 'Start Lists', label: t('tabStartList') },
+    { id: 'Overall', label: t('overall') },
+    { id: 'Stage Times', label: t('tabStageTimes') },
+    { id: 'Stage Winners', label: t('stageWinners') },
+    { id: 'Penalties', label: t('tabPenalties') },
+    { id: 'Retirements', label: t('retirements') }
+  ];
   
   React.useEffect(() => {
     if (rally.stages.length > 0 && !rally.stages.find(s => s.id === activeStageId)) {
@@ -53,7 +62,7 @@ export const PublicView: React.FC<{ rally: Rally }> = ({ rally }) => {
       
       const latestStageIndex = rally.stages.length - 1;
       if (latestStageIndex >= 0) {
-        currentY = addTitle('Overall Classification', currentY);
+        currentY = addTitle(t('overallClassification'), currentY);
         const latestOverall = calculateOverallResults(rally, latestStageIndex);
         
         const overallBody = latestOverall.map(row => [
@@ -67,7 +76,7 @@ export const PublicView: React.FC<{ rally: Rally }> = ({ rally }) => {
 
         autoTable(doc, {
           startY: currentY,
-          head: [['Pos', 'Driver / Co-Driver', 'Car', 'Total Time', 'Diff Prev', 'Diff 1st']],
+          head: [[t('pos'), t('driverCoDriver'), t('car'), t('totalTime'), t('diffPrev'), t('diff1st')]],
           body: overallBody,
           theme: 'striped',
           headStyles: { fillColor: [234, 88, 12] }, // orange-600
@@ -84,7 +93,7 @@ export const PublicView: React.FC<{ rally: Rally }> = ({ rally }) => {
       // 2. Stage Winners
       if (rally.stages.length > 0) {
         if (currentY > 250) { doc.addPage(); currentY = 20; }
-        currentY = addTitle('Stage Winners', currentY);
+        currentY = addTitle(t('stageWinners'), currentY);
         
         const winnersBody = rally.stages.map(stage => {
           const results = calculateStageResults(rally, stage.id).filter(r => !r.isDnf);
@@ -99,7 +108,7 @@ export const PublicView: React.FC<{ rally: Rally }> = ({ rally }) => {
 
         autoTable(doc, {
           startY: currentY,
-          head: [['Stage', 'Driver', 'Car', 'Time']],
+          head: [[t('stage'), t('driver'), t('car'), t('time')]],
           body: winnersBody,
           theme: 'striped',
           headStyles: { fillColor: [30, 41, 59] }, // slate-800
@@ -116,7 +125,7 @@ export const PublicView: React.FC<{ rally: Rally }> = ({ rally }) => {
       // 3. All Stage Times
       rally.stages.forEach(stage => {
         if (currentY > 200) { doc.addPage(); currentY = 20; }
-        currentY = addTitle(`Stage Times: ${stage.identifier} - ${stage.name}`, currentY);
+        currentY = addTitle(`${t('tabStageTimes')}: ${stage.identifier} - ${stage.name}`, currentY);
         
         const sResults = calculateStageResults(rally, stage.id);
         const stageBody = sResults.map(row => [
@@ -129,7 +138,7 @@ export const PublicView: React.FC<{ rally: Rally }> = ({ rally }) => {
 
         autoTable(doc, {
           startY: currentY,
-          head: [['Pos', 'Driver / Co-Driver', 'Car', 'Time', 'Diff 1st']],
+          head: [[t('pos'), t('driverCoDriver'), t('car'), t('time'), t('diff1st')]],
           body: stageBody,
           theme: 'striped',
           headStyles: { fillColor: [71, 85, 105] }, // slate-600
@@ -157,7 +166,7 @@ export const PublicView: React.FC<{ rally: Rally }> = ({ rally }) => {
 
       if (penaltiesList.length > 0) {
         if (currentY > 250) { doc.addPage(); currentY = 20; }
-        currentY = addTitle('Penalties', currentY);
+        currentY = addTitle(t('tabPenalties'), currentY);
         
         const penBody = penaltiesList.map(({ participant, stage, penalty }) => [
           participant?.driverName || '-',
@@ -168,7 +177,7 @@ export const PublicView: React.FC<{ rally: Rally }> = ({ rally }) => {
 
         autoTable(doc, {
           startY: currentY,
-          head: [['Driver', 'Stage', 'Penalty', 'Time Added']],
+          head: [[t('driver'), t('stage'), t('penalty'), t('timeAdded')]],
           body: penBody,
           theme: 'striped',
           headStyles: { fillColor: [30, 41, 59] },
@@ -186,7 +195,7 @@ export const PublicView: React.FC<{ rally: Rally }> = ({ rally }) => {
       const dnfList = rally.stageTimes.filter(st => st.isDnf);
       if (dnfList.length > 0) {
         if (currentY > 250) { doc.addPage(); currentY = 20; }
-        currentY = addTitle('Retirements (DNF)', currentY);
+        currentY = addTitle(t('retirements'), currentY);
         
         const dnfBody = dnfList.map(st => {
           const participant = rally.participants.find(p => p.id === st.participantId);
@@ -200,7 +209,7 @@ export const PublicView: React.FC<{ rally: Rally }> = ({ rally }) => {
 
         autoTable(doc, {
           startY: currentY,
-          head: [['Driver', 'Car', 'Stage of Retirement']],
+          head: [[t('driver'), t('car'), t('stageOfRetirement')]],
           body: dnfBody,
           theme: 'striped',
           headStyles: { fillColor: [220, 38, 38] }, // red-600
@@ -211,25 +220,25 @@ export const PublicView: React.FC<{ rally: Rally }> = ({ rally }) => {
       doc.save(`${rallyName.replace(/\s+/g, '_').toLowerCase()}_results.pdf`);
     } catch (error) {
       console.error('Error generating PDF:', error);
-      alert('Hubo un error al generar el PDF: ' + (error instanceof Error ? error.message : String(error)));
+      alert(t('errorGeneratingPDF') + (error instanceof Error ? error.message : String(error)));
     }
   };
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-end border-b border-gray-200 pb-2">
+      <div className="flex justify-between items-end border-b border-gray-200 dark:border-slate-700 pb-2">
         <nav className="-mb-px flex space-x-8 overflow-x-auto">
           {tabs.map(tab => (
             <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
               className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
-                activeTab === tab
+                activeTab === tab.id
                   ? 'border-orange-500 text-orange-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:text-gray-300 hover:border-gray-300 dark:border-slate-600'
               }`}
             >
-              {tab}
+              {tab.label}
             </button>
           ))}
         </nav>
@@ -238,7 +247,7 @@ export const PublicView: React.FC<{ rally: Rally }> = ({ rally }) => {
           className="flex items-center gap-2 px-4 py-2 bg-slate-800 text-white rounded-md text-sm font-medium hover:bg-slate-700 transition-colors mb-2"
         >
           <Download size={16} />
-          Export PDF
+          {t('exportPDF')}
         </button>
       </div>
 
@@ -253,7 +262,7 @@ export const PublicView: React.FC<{ rally: Rally }> = ({ rally }) => {
                   className={`px-4 py-2 rounded-md text-sm font-bold transition-colors whitespace-nowrap ${
                     activeStageId === stage.id
                       ? 'bg-slate-800 text-white'
-                      : 'bg-white text-slate-700 border border-gray-200 hover:bg-gray-50'
+                      : 'bg-white dark:bg-slate-900 text-slate-700 border border-gray-200 dark:border-slate-700 hover:bg-gray-50 dark:bg-slate-800/50'
                   }`}
                 >
                   {stage.identifier}
@@ -261,39 +270,39 @@ export const PublicView: React.FC<{ rally: Rally }> = ({ rally }) => {
               ))}
             </div>
           ) : (
-            <div className="text-gray-500 py-4">No stages available yet.</div>
+            <div className="text-gray-500 dark:text-gray-400 py-4">{t('noStagesYet')}</div>
           )}
 
           {activeStage && (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               
-              <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+              <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 overflow-hidden">
                 <div className="bg-slate-800 px-4 py-3 border-b border-slate-700">
-                  <h3 className="text-white font-bold tracking-wide uppercase text-sm">Stage Times - {activeStage.identifier}</h3>
+                  <h3 className="text-white font-bold tracking-wide uppercase text-sm">{t('tabStageTimes')} - {activeStage.identifier}</h3>
                 </div>
                 <div className="overflow-x-auto">
                   <table className="w-full text-left text-sm">
-                    <thead className="bg-gray-50 text-gray-500 text-xs uppercase">
+                    <thead className="bg-gray-50 dark:bg-slate-800/50 text-gray-500 dark:text-gray-400 text-xs uppercase">
                       <tr>
-                        <th className="px-4 py-2 font-medium w-12 text-center">Pos</th>
-                        <th className="px-4 py-2 font-medium">Driver / Co-Driver</th>
-                        <th className="px-4 py-2 font-medium text-right">Time</th>
-                        <th className="px-4 py-2 font-medium text-right">Diff Prev</th>
-                        <th className="px-4 py-2 font-medium text-right">Diff 1st</th>
+                        <th className="px-4 py-2 font-medium w-12 text-center">{t('pos')}</th>
+                        <th className="px-4 py-2 font-medium">{t('driverCoDriver')}</th>
+                        <th className="px-4 py-2 font-medium text-right">{t('time')}</th>
+                        <th className="px-4 py-2 font-medium text-right">{t('diffPrev')}</th>
+                        <th className="px-4 py-2 font-medium text-right">{t('diff1st')}</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-gray-100">
+                    <tbody className="divide-y divide-gray-100 dark:divide-slate-800">
                       {stageResults.length === 0 && (
-                        <tr><td colSpan={5} className="px-4 py-8 text-center text-gray-500">No times recorded for this stage.</td></tr>
+                        <tr><td colSpan={5} className="px-4 py-8 text-center text-gray-500 dark:text-gray-400">{t('noTimesRecorded')}</td></tr>
                       )}
                       {stageResults.map((row) => (
-                        <tr key={row.participantId} className="hover:bg-gray-50">
-                          <td className="px-4 py-3 text-center font-bold text-gray-900">{row.isDnf ? '-' : row.pos}</td>
+                        <tr key={row.participantId} className="hover:bg-gray-50 dark:bg-slate-800/50">
+                          <td className="px-4 py-3 text-center font-bold text-gray-900 dark:text-gray-100">{row.isDnf ? '-' : row.pos}</td>
                           <td className="px-4 py-3">
-                            <div className="font-bold text-gray-900">{row.driverName}</div>
-                            {row.coDriverName && <div className="text-xs text-gray-500">{row.coDriverName}</div>}
+                            <div className="font-bold text-gray-900 dark:text-gray-100">{row.driverName}</div>
+                            {row.coDriverName && <div className="text-xs text-gray-500 dark:text-gray-400">{row.coDriverName}</div>}
                           </td>
-                          <td className="px-4 py-3 text-right font-mono font-medium text-gray-900">
+                          <td className="px-4 py-3 text-right font-mono font-medium text-gray-900 dark:text-gray-100">
                             {row.isDnf ? (
                               <span className="text-red-600 font-bold">DNF</span>
                             ) : (
@@ -310,7 +319,7 @@ export const PublicView: React.FC<{ rally: Rally }> = ({ rally }) => {
                               </div>
                             )}
                           </td>
-                          <td className="px-4 py-3 text-right font-mono text-xs text-gray-500">
+                          <td className="px-4 py-3 text-right font-mono text-xs text-gray-500 dark:text-gray-400">
                             {!row.isDnf && row.diffPrevMs > 0 ? `+${formatDiffMs(row.diffPrevMs)}` : '-'}
                           </td>
                           <td className="px-4 py-3 text-right font-mono text-xs text-orange-600 font-medium">
@@ -323,33 +332,33 @@ export const PublicView: React.FC<{ rally: Rally }> = ({ rally }) => {
                 </div>
               </div>
 
-              <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+              <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 overflow-hidden">
                 <div className="bg-orange-600 px-4 py-3 border-b border-orange-700">
-                  <h3 className="text-white font-bold tracking-wide uppercase text-sm">Overall After {activeStage.identifier}</h3>
+                  <h3 className="text-white font-bold tracking-wide uppercase text-sm">{t('overallAfter')} {activeStage.identifier}</h3>
                 </div>
                 <div className="overflow-x-auto">
                   <table className="w-full text-left text-sm">
-                    <thead className="bg-gray-50 text-gray-500 text-xs uppercase">
+                    <thead className="bg-gray-50 dark:bg-slate-800/50 text-gray-500 dark:text-gray-400 text-xs uppercase">
                       <tr>
-                        <th className="px-4 py-2 font-medium w-16 text-center">Pos</th>
-                        <th className="px-4 py-2 font-medium">Driver / Co-Driver</th>
-                        <th className="px-4 py-2 font-medium text-right">Total Time</th>
-                        <th className="px-4 py-2 font-medium text-right">Diff Prev</th>
-                        <th className="px-4 py-2 font-medium text-right">Diff 1st</th>
+                        <th className="px-4 py-2 font-medium w-16 text-center">{t('pos')}</th>
+                        <th className="px-4 py-2 font-medium">{t('driverCoDriver')}</th>
+                        <th className="px-4 py-2 font-medium text-right">{t('totalTime')}</th>
+                        <th className="px-4 py-2 font-medium text-right">{t('diffPrev')}</th>
+                        <th className="px-4 py-2 font-medium text-right">{t('diff1st')}</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-gray-100">
+                    <tbody className="divide-y divide-gray-100 dark:divide-slate-800">
                       {overallResults.length === 0 && (
-                        <tr><td colSpan={5} className="px-4 py-8 text-center text-gray-500">No overall results available.</td></tr>
+                        <tr><td colSpan={5} className="px-4 py-8 text-center text-gray-500 dark:text-gray-400">{t('noOverallResults')}</td></tr>
                       )}
                       {overallResults.map((row) => (
-                        <tr key={row.participantId} className="hover:bg-gray-50">
+                        <tr key={row.participantId} className="hover:bg-gray-50 dark:bg-slate-800/50">
                           <td className="px-4 py-3 text-center">
                             {row.isDnf ? (
                               <span className="text-gray-400 font-bold">-</span>
                             ) : (
                               <div className="flex items-center justify-center gap-1">
-                                <span className="font-bold text-gray-900">{row.pos}</span>
+                                <span className="font-bold text-gray-900 dark:text-gray-100">{row.pos}</span>
                                 {row.change > 0 && <span className="text-green-500 text-xs">▲</span>}
                                 {row.change < 0 && <span className="text-red-500 text-xs">▼</span>}
                                 {row.change === 0 && <span className="text-gray-300 text-xs">-</span>}
@@ -357,10 +366,10 @@ export const PublicView: React.FC<{ rally: Rally }> = ({ rally }) => {
                             )}
                           </td>
                           <td className="px-4 py-3">
-                            <div className="font-bold text-gray-900">{row.driverName}</div>
-                            {row.coDriverName && <div className="text-xs text-gray-500">{row.coDriverName}</div>}
+                            <div className="font-bold text-gray-900 dark:text-gray-100">{row.driverName}</div>
+                            {row.coDriverName && <div className="text-xs text-gray-500 dark:text-gray-400">{row.coDriverName}</div>}
                           </td>
-                          <td className="px-4 py-3 text-right font-mono font-medium text-gray-900">
+                          <td className="px-4 py-3 text-right font-mono font-medium text-gray-900 dark:text-gray-100">
                             {row.isDnf ? (
                               <span className="text-red-600 font-bold">DNF</span>
                             ) : (
@@ -377,7 +386,7 @@ export const PublicView: React.FC<{ rally: Rally }> = ({ rally }) => {
                               </div>
                             )}
                           </td>
-                          <td className="px-4 py-3 text-right font-mono text-xs text-gray-500">
+                          <td className="px-4 py-3 text-right font-mono text-xs text-gray-500 dark:text-gray-400">
                             {!row.isDnf && row.diffPrevMs > 0 ? `+${formatDiffMs(row.diffPrevMs)}` : '-'}
                           </td>
                           <td className="px-4 py-3 text-right font-mono text-xs text-orange-600 font-medium">
@@ -396,39 +405,39 @@ export const PublicView: React.FC<{ rally: Rally }> = ({ rally }) => {
       )}
 
       {activeTab === 'Overall' && (
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+        <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 overflow-hidden">
           <div className="bg-orange-600 px-4 py-3 border-b border-orange-700">
-            <h3 className="text-white font-bold tracking-wide uppercase text-sm">Overall Classification</h3>
+            <h3 className="text-white font-bold tracking-wide uppercase text-sm">{t('overallClassification')}</h3>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
-              <thead className="bg-gray-50 text-gray-500 text-xs uppercase">
+              <thead className="bg-gray-50 dark:bg-slate-800/50 text-gray-500 dark:text-gray-400 text-xs uppercase">
                 <tr>
-                  <th className="px-4 py-2 font-medium w-16 text-center">Pos</th>
-                  <th className="px-4 py-2 font-medium">Driver / Co-Driver</th>
-                  <th className="px-4 py-2 font-medium">Car</th>
-                  <th className="px-4 py-2 font-medium text-right">Total Time</th>
-                  <th className="px-4 py-2 font-medium text-right">Diff Prev</th>
-                  <th className="px-4 py-2 font-medium text-right">Diff 1st</th>
+                  <th className="px-4 py-2 font-medium w-16 text-center">{t('pos')}</th>
+                  <th className="px-4 py-2 font-medium">{t('driverCoDriver')}</th>
+                  <th className="px-4 py-2 font-medium">{t('car')}</th>
+                  <th className="px-4 py-2 font-medium text-right">{t('totalTime')}</th>
+                  <th className="px-4 py-2 font-medium text-right">{t('diffPrev')}</th>
+                  <th className="px-4 py-2 font-medium text-right">{t('diff1st')}</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100">
+              <tbody className="divide-y divide-gray-100 dark:divide-slate-800">
                 {(() => {
                   const latestStageIndex = rally.stages.length - 1;
                   const latestOverall = calculateOverallResults(rally, latestStageIndex);
                   
                   if (latestOverall.length === 0) {
-                    return <tr><td colSpan={6} className="px-4 py-8 text-center text-gray-500">No overall results available.</td></tr>;
+                    return <tr><td colSpan={6} className="px-4 py-8 text-center text-gray-500 dark:text-gray-400">{t('noOverallResults')}</td></tr>;
                   }
 
                   return latestOverall.map((row) => (
-                    <tr key={row.participantId} className="hover:bg-gray-50">
+                    <tr key={row.participantId} className="hover:bg-gray-50 dark:bg-slate-800/50">
                       <td className="px-4 py-3 text-center">
                         {row.isDnf ? (
                           <span className="text-gray-400 font-bold">-</span>
                         ) : (
                           <div className="flex items-center justify-center gap-1">
-                            <span className="font-bold text-gray-900">{row.pos}</span>
+                            <span className="font-bold text-gray-900 dark:text-gray-100">{row.pos}</span>
                             {row.change > 0 && <span className="text-green-500 text-xs">▲</span>}
                             {row.change < 0 && <span className="text-red-500 text-xs">▼</span>}
                             {row.change === 0 && <span className="text-gray-300 text-xs">-</span>}
@@ -436,11 +445,11 @@ export const PublicView: React.FC<{ rally: Rally }> = ({ rally }) => {
                         )}
                       </td>
                       <td className="px-4 py-3">
-                        <div className="font-bold text-gray-900">{row.driverName}</div>
-                        {row.coDriverName && <div className="text-xs text-gray-500">{row.coDriverName}</div>}
+                        <div className="font-bold text-gray-900 dark:text-gray-100">{row.driverName}</div>
+                        {row.coDriverName && <div className="text-xs text-gray-500 dark:text-gray-400">{row.coDriverName}</div>}
                       </td>
-                      <td className="px-4 py-3 text-gray-600">{row.car}</td>
-                          <td className="px-4 py-3 text-right font-mono font-medium text-gray-900">
+                      <td className="px-4 py-3 text-gray-600 dark:text-gray-400">{row.car}</td>
+                          <td className="px-4 py-3 text-right font-mono font-medium text-gray-900 dark:text-gray-100">
                         {row.isDnf ? (
                           <span className="text-red-600 font-bold">DNF</span>
                         ) : (
@@ -457,7 +466,7 @@ export const PublicView: React.FC<{ rally: Rally }> = ({ rally }) => {
                           </div>
                         )}
                       </td>
-                      <td className="px-4 py-3 text-right font-mono text-xs text-gray-500">
+                      <td className="px-4 py-3 text-right font-mono text-xs text-gray-500 dark:text-gray-400">
                         {!row.isDnf && row.diffPrevMs > 0 ? `+${formatDiffMs(row.diffPrevMs)}` : '-'}
                       </td>
                       <td className="px-4 py-3 text-right font-mono text-xs text-orange-600 font-medium">
@@ -473,45 +482,45 @@ export const PublicView: React.FC<{ rally: Rally }> = ({ rally }) => {
       )}
 
       {activeTab === 'Stage Winners' && (
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+        <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 overflow-hidden">
           <div className="bg-slate-800 px-4 py-3 border-b border-slate-700">
-            <h3 className="text-white font-bold tracking-wide uppercase text-sm">Stage Winners</h3>
+            <h3 className="text-white font-bold tracking-wide uppercase text-sm">{t('stageWinners')}</h3>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
-              <thead className="bg-gray-50 text-gray-500 text-xs uppercase">
+              <thead className="bg-gray-50 dark:bg-slate-800/50 text-gray-500 dark:text-gray-400 text-xs uppercase">
                 <tr>
-                  <th className="px-4 py-2 font-medium">Stage</th>
-                  <th className="px-4 py-2 font-medium">Driver</th>
-                  <th className="px-4 py-2 font-medium">Car</th>
-                  <th className="px-4 py-2 font-medium text-right">Time</th>
+                  <th className="px-4 py-2 font-medium">{t('stage')}</th>
+                  <th className="px-4 py-2 font-medium">{t('driver')}</th>
+                  <th className="px-4 py-2 font-medium">{t('car')}</th>
+                  <th className="px-4 py-2 font-medium text-right">{t('time')}</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100">
+              <tbody className="divide-y divide-gray-100 dark:divide-slate-800">
                 {rally.stages.map(stage => {
                   const results = calculateStageResults(rally, stage.id).filter(r => !r.isDnf);
                   const winner = results[0];
                   return (
-                    <tr key={stage.id} className="hover:bg-gray-50">
-                      <td className="px-4 py-3 font-bold text-gray-900">{stage.identifier} - {stage.name}</td>
+                    <tr key={stage.id} className="hover:bg-gray-50 dark:bg-slate-800/50">
+                      <td className="px-4 py-3 font-bold text-gray-900 dark:text-gray-100">{stage.identifier} - {stage.name}</td>
                       {winner ? (
                         <>
                           <td className="px-4 py-3">
-                            <div className="font-bold text-gray-900">{winner.driverName}</div>
+                            <div className="font-bold text-gray-900 dark:text-gray-100">{winner.driverName}</div>
                           </td>
-                          <td className="px-4 py-3 text-gray-600">{winner.car}</td>
-                          <td className="px-4 py-3 text-right font-mono font-medium text-gray-900">
+                          <td className="px-4 py-3 text-gray-600 dark:text-gray-400">{winner.car}</td>
+                          <td className="px-4 py-3 text-right font-mono font-medium text-gray-900 dark:text-gray-100">
                             {formatTimeMs(winner.timeMs)}
                           </td>
                         </>
                       ) : (
-                        <td colSpan={3} className="px-4 py-3 text-gray-500 italic">No times recorded yet</td>
+                        <td colSpan={3} className="px-4 py-3 text-gray-500 dark:text-gray-400 italic">{t('noTimesRecorded')}</td>
                       )}
                     </tr>
                   );
                 })}
                 {rally.stages.length === 0 && (
-                  <tr><td colSpan={4} className="px-4 py-8 text-center text-gray-500">No stages available.</td></tr>
+                  <tr><td colSpan={4} className="px-4 py-8 text-center text-gray-500 dark:text-gray-400">{t('noStagesYet')}</td></tr>
                 )}
               </tbody>
             </table>
@@ -520,32 +529,32 @@ export const PublicView: React.FC<{ rally: Rally }> = ({ rally }) => {
       )}
 
       {activeTab === 'Start Lists' && (
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+        <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 overflow-hidden">
           <div className="bg-slate-800 px-4 py-3 border-b border-slate-700">
-            <h3 className="text-white font-bold tracking-wide uppercase text-sm">Start List</h3>
+            <h3 className="text-white font-bold tracking-wide uppercase text-sm">{t('tabStartList')}</h3>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
-              <thead className="bg-gray-50 text-gray-500 text-xs uppercase">
+              <thead className="bg-gray-50 dark:bg-slate-800/50 text-gray-500 dark:text-gray-400 text-xs uppercase">
                 <tr>
                   <th className="px-4 py-2 font-medium w-16 text-center">#</th>
-                  <th className="px-4 py-2 font-medium">Driver / Co-Driver</th>
-                  <th className="px-4 py-2 font-medium">Car</th>
+                  <th className="px-4 py-2 font-medium">{t('driverCoDriver')}</th>
+                  <th className="px-4 py-2 font-medium">{t('car')}</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100">
+              <tbody className="divide-y divide-gray-100 dark:divide-slate-800">
                 {rally.participants.map((p, idx) => (
-                  <tr key={p.id} className="hover:bg-gray-50">
-                    <td className="px-4 py-3 text-center font-bold text-gray-900">{idx + 1}</td>
+                  <tr key={p.id} className="hover:bg-gray-50 dark:bg-slate-800/50">
+                    <td className="px-4 py-3 text-center font-bold text-gray-900 dark:text-gray-100">{idx + 1}</td>
                     <td className="px-4 py-3">
-                      <div className="font-bold text-gray-900">{p.driverName}</div>
-                      {p.hasCoDriver && <div className="text-xs text-gray-500">{p.coDriverName}</div>}
+                      <div className="font-bold text-gray-900 dark:text-gray-100">{p.driverName}</div>
+                      {p.hasCoDriver && <div className="text-xs text-gray-500 dark:text-gray-400">{p.coDriverName}</div>}
                     </td>
-                    <td className="px-4 py-3 text-gray-600">{p.car}</td>
+                    <td className="px-4 py-3 text-gray-600 dark:text-gray-400">{p.car}</td>
                   </tr>
                 ))}
                 {rally.participants.length === 0 && (
-                  <tr><td colSpan={3} className="px-4 py-8 text-center text-gray-500">No participants registered.</td></tr>
+                  <tr><td colSpan={3} className="px-4 py-8 text-center text-gray-500 dark:text-gray-400">{t('noParticipants')}</td></tr>
                 )}
               </tbody>
             </table>
@@ -554,21 +563,21 @@ export const PublicView: React.FC<{ rally: Rally }> = ({ rally }) => {
       )}
       
       {activeTab === 'Penalties' && (
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+        <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 overflow-hidden">
           <div className="bg-slate-800 px-4 py-3 border-b border-slate-700">
-            <h3 className="text-white font-bold tracking-wide uppercase text-sm">Penalties</h3>
+            <h3 className="text-white font-bold tracking-wide uppercase text-sm">{t('tabPenalties')}</h3>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
-              <thead className="bg-gray-50 text-gray-500 text-xs uppercase">
+              <thead className="bg-gray-50 dark:bg-slate-800/50 text-gray-500 dark:text-gray-400 text-xs uppercase">
                 <tr>
-                  <th className="px-4 py-2 font-medium">Driver</th>
-                  <th className="px-4 py-2 font-medium">Location</th>
-                  <th className="px-4 py-2 font-medium">Penalty</th>
-                  <th className="px-4 py-2 font-medium text-right">Time Added</th>
+                  <th className="px-4 py-2 font-medium">{t('driver')}</th>
+                  <th className="px-4 py-2 font-medium">{t('location')}</th>
+                  <th className="px-4 py-2 font-medium">{t('penalty')}</th>
+                  <th className="px-4 py-2 font-medium text-right">{t('timeAdded')}</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100">
+              <tbody className="divide-y divide-gray-100 dark:divide-slate-800">
                 {(() => {
                   const stagePenalties = rally.stageTimes
                     .filter(st => st.penaltyConfigIds && st.penaltyConfigIds.length > 0)
@@ -607,14 +616,14 @@ export const PublicView: React.FC<{ rally: Rally }> = ({ rally }) => {
                   const allPenalties = [...stagePenalties, ...tcPenaltiesList];
 
                   if (allPenalties.length === 0) {
-                    return <tr><td colSpan={4} className="px-4 py-8 text-center text-gray-500">No penalties recorded.</td></tr>;
+                    return <tr><td colSpan={4} className="px-4 py-8 text-center text-gray-500 dark:text-gray-400">{t('noPenaltiesRecorded')}</td></tr>;
                   }
 
                   return allPenalties.map((item, idx) => (
-                    <tr key={`${item.id}-${idx}`} className="hover:bg-gray-50">
-                      <td className="px-4 py-3 font-bold text-gray-900">{item.participant?.driverName}</td>
-                      <td className="px-4 py-3 text-gray-600">{item.location}</td>
-                      <td className="px-4 py-3 text-gray-600">{item.penalty?.name}</td>
+                    <tr key={`${item.id}-${idx}`} className="hover:bg-gray-50 dark:bg-slate-800/50">
+                      <td className="px-4 py-3 font-bold text-gray-900 dark:text-gray-100">{item.participant?.driverName}</td>
+                      <td className="px-4 py-3 text-gray-600 dark:text-gray-400">{item.location}</td>
+                      <td className="px-4 py-3 text-gray-600 dark:text-gray-400">{item.penalty?.name}</td>
                       <td className="px-4 py-3 text-right font-mono text-orange-600">
                         {item.isSuperRally ? 'SR+' : `+${formatTimeMs(item.timeAddedMs)}`}
                       </td>
@@ -628,34 +637,34 @@ export const PublicView: React.FC<{ rally: Rally }> = ({ rally }) => {
       )}
 
       {activeTab === 'Retirements' && (
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+        <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 overflow-hidden">
           <div className="bg-slate-800 px-4 py-3 border-b border-slate-700">
-            <h3 className="text-white font-bold tracking-wide uppercase text-sm">Retirements (DNF)</h3>
+            <h3 className="text-white font-bold tracking-wide uppercase text-sm">{t('retirements')} (DNF)</h3>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
-              <thead className="bg-gray-50 text-gray-500 text-xs uppercase">
+              <thead className="bg-gray-50 dark:bg-slate-800/50 text-gray-500 dark:text-gray-400 text-xs uppercase">
                 <tr>
-                  <th className="px-4 py-2 font-medium">Driver</th>
-                  <th className="px-4 py-2 font-medium">Car</th>
-                  <th className="px-4 py-2 font-medium">Stage of Retirement</th>
+                  <th className="px-4 py-2 font-medium">{t('driver')}</th>
+                  <th className="px-4 py-2 font-medium">{t('car')}</th>
+                  <th className="px-4 py-2 font-medium">{t('stageOfRetirement')}</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100">
+              <tbody className="divide-y divide-gray-100 dark:divide-slate-800">
                 {(() => {
                   const dnfList = rally.stageTimes.filter(st => st.isDnf);
                   
                   if (dnfList.length === 0) {
-                    return <tr><td colSpan={3} className="px-4 py-8 text-center text-gray-500">No retirements recorded.</td></tr>;
+                    return <tr><td colSpan={3} className="px-4 py-8 text-center text-gray-500 dark:text-gray-400">{t('noRetirementsRecorded')}</td></tr>;
                   }
 
                   return dnfList.map(st => {
                     const participant = rally.participants.find(p => p.id === st.participantId);
                     const stage = rally.stages.find(s => s.id === st.stageId);
                     return (
-                      <tr key={st.id} className="hover:bg-gray-50">
-                        <td className="px-4 py-3 font-bold text-gray-900">{participant?.driverName}</td>
-                        <td className="px-4 py-3 text-gray-600">{participant?.car}</td>
+                      <tr key={st.id} className="hover:bg-gray-50 dark:bg-slate-800/50">
+                        <td className="px-4 py-3 font-bold text-gray-900 dark:text-gray-100">{participant?.driverName}</td>
+                        <td className="px-4 py-3 text-gray-600 dark:text-gray-400">{participant?.car}</td>
                         <td className="px-4 py-3 text-red-600 font-medium">{stage?.identifier}</td>
                       </tr>
                     );
