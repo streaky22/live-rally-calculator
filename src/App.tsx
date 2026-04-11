@@ -36,7 +36,9 @@ export default function App() {
   const [view, setView] = useState<'PUBLIC' | 'ADMIN'>('PUBLIC');
   const [showResetModal, setShowResetModal] = useState(false);
   const [user, setUser] = useState<User | null>(null);
-  const [rally, setRally] = useState<Rally>(INITIAL_RALLY);
+  const [rally, setRally] = useState<Rally | null>(null);
+  const [isFirebaseReady, setIsFirebaseReady] = useState(!!db);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   
   // Login form state
   const [loginUsername, setLoginUsername] = useState('');
@@ -59,8 +61,11 @@ export default function App() {
   useEffect(() => {
     if (!db) {
       console.error("Firebase DB is not initialized.");
+      setIsFirebaseReady(false);
+      setRally(INITIAL_RALLY); // Fallback to local state if no DB
       return;
     }
+    setIsFirebaseReady(true);
     const unsubscribe = onSnapshot(doc(db, 'rallies', 'main'), (docSnap) => {
       if (docSnap.exists()) {
         const data = docSnap.data();
@@ -106,9 +111,8 @@ export default function App() {
     }
   };
 
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
   const handleExport = () => {
+    if (!rally) return;
     const dataStr = JSON.stringify(rally, null, 2);
     const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
     
@@ -180,6 +184,17 @@ export default function App() {
       setLoginError("Usuario o contraseña incorrectos.");
     }
   };
+
+  if (!rally) {
+    return (
+      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Cargando datos del rally...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-100 text-gray-900 font-sans">
