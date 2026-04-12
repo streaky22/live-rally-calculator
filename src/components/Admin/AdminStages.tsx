@@ -146,7 +146,7 @@ export const AdminStages: React.FC<{ rally: Rally; setRally: React.Dispatch<Reac
                   onDrop={(e) => handleDrop(e, index)}
                   onDragEnd={handleDragEnd}
                   className={`transition-colors ${editingId !== s.id ? 'cursor-move' : ''} ${
-                    draggedIndex === index ? 'opacity-50 bg-gray-100 dark:bg-slate-950' : 'hover:bg-gray-50 dark:bg-slate-800/50'
+                    draggedIndex === index ? 'opacity-50 bg-gray-100 dark:bg-slate-950' : 'hover:bg-gray-50 dark:hover:bg-slate-800/50'
                   } ${
                     dragOverIndex === index && draggedIndex !== index 
                       ? dragOverIndex > draggedIndex! 

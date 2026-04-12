@@ -109,7 +109,7 @@ export const AdminTCEntry: React.FC<{ rally: Rally; setRally: React.Dispatch<Rea
               className={`px-4 py-2 rounded-md text-sm font-bold transition-colors whitespace-nowrap ${
                 activeTcId === tc.id
                   ? 'bg-slate-800 text-white'
-                  : 'bg-white dark:bg-slate-900 text-slate-700 border border-gray-200 dark:border-slate-700 hover:bg-gray-50 dark:bg-slate-800/50'
+                  : 'bg-white dark:bg-slate-900 text-slate-700 border border-gray-200 dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-slate-800/50'
               }`}
             >
               {tc.identifier} - {tc.name}
@@ -139,7 +139,7 @@ export const AdminTCEntry: React.FC<{ rally: Rally; setRally: React.Dispatch<Rea
               const isMarked = !!existingRecord;
 
               return (
-                <tr key={p.id} className={`transition-colors ${isMarked ? (isOk ? 'bg-green-50/30' : 'bg-orange-50/30') : 'hover:bg-gray-50 dark:bg-slate-800/50'}`}>
+                <tr key={p.id} className={`transition-colors ${isMarked ? (isOk ? 'bg-green-50/30' : 'bg-orange-50/30') : 'hover:bg-gray-50 dark:hover:bg-slate-800/50'}`}>
                   <td className="px-4 py-4 text-center font-bold text-gray-400">{index + 1}</td>
                   <td className="px-4 py-4">
                     <div className="font-semibold text-gray-900 dark:text-gray-100">{p.driverName}</div>
@@ -252,7 +252,7 @@ export const AdminTCEntry: React.FC<{ rally: Rally; setRally: React.Dispatch<Rea
               <div className="flex justify-end gap-3 mt-6">
                 <button 
                   onClick={() => setShowModal(null)}
-                  className="px-4 py-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:bg-slate-950 rounded-md transition-colors"
+                  className="px-4 py-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-slate-800/50 rounded-md transition-colors"
                 >
                   {t('cancel')}
                 </button>

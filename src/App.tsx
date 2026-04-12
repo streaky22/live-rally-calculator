@@ -259,13 +259,13 @@ export default function App() {
             <nav className="flex gap-2 items-center">
               <button 
                 onClick={() => setView('PUBLIC')}
-                className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${view === 'PUBLIC' ? 'bg-white dark:bg-slate-900/20 text-white' : 'text-slate-300 hover:bg-white dark:bg-slate-900/10'}`}
+                className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${view === 'PUBLIC' ? 'bg-white/20 dark:bg-slate-800 text-white' : 'text-slate-300 hover:bg-white/10 dark:hover:bg-slate-800'}`}
               >
                 {t('publicView')}
               </button>
               <button 
                 onClick={() => setView('ADMIN')}
-                className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${view === 'ADMIN' ? 'bg-white dark:bg-slate-900/20 text-white' : 'text-slate-300 hover:bg-white dark:bg-slate-900/10'}`}
+                className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${view === 'ADMIN' ? 'bg-white/20 dark:bg-slate-800 text-white' : 'text-slate-300 hover:bg-white/10 dark:hover:bg-slate-800'}`}
               >
                 {t('admin')}
               </button>
@@ -287,9 +287,6 @@ export default function App() {
                   </button>
                 </div>
               )}
-              <div className="hidden sm:block mx-1">
-                <RealTimeClock />
-              </div>
               <ThemeToggle />
               <LanguageSwitcher />
             </nav>
@@ -298,6 +295,10 @@ export default function App() {
       </header>
       
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="flex justify-center mb-6">
+          <RealTimeClock />
+        </div>
+        
         {view === 'ADMIN' ? (
           user ? (
             <AdminPanel rally={rally} setRally={handleSetRally} />
@@ -361,7 +362,7 @@ export default function App() {
                       setLoginError(error.message || t('errorGoogle'));
                     }
                   }}
-                  className="w-full flex items-center justify-center gap-2 bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-600 text-gray-700 dark:text-gray-300 py-2.5 px-4 rounded-lg hover:bg-gray-50 dark:bg-slate-800/50 transition-colors font-medium shadow-sm"
+                  className="w-full flex items-center justify-center gap-2 bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-600 text-gray-700 dark:text-gray-300 py-2.5 px-4 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-800/50 transition-colors font-medium shadow-sm"
                 >
                   <svg className="w-5 h-5" viewBox="0 0 24 24">
                     <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
@@ -394,7 +395,7 @@ export default function App() {
             <div className="flex justify-end gap-3">
               <button 
                 onClick={() => setShowResetModal(false)}
-                className="px-4 py-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:bg-slate-950 rounded-md transition-colors font-medium"
+                className="px-4 py-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-slate-800/50 rounded-md transition-colors font-medium"
               >
                 Cancelar
               </button>

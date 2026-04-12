@@ -164,7 +164,7 @@ export const AdminUsers: React.FC = () => {
             const displayEmail = isCustomUser ? email.replace('@rally.local', '') : email;
             
             return (
-              <li key={email} className="px-4 py-4 flex items-center justify-between hover:bg-gray-50 dark:bg-slate-800/50 transition-colors">
+              <li key={email} className="px-4 py-4 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-slate-800/50 transition-colors">
                 <div className="flex items-center gap-2">
                   <span className="text-sm text-gray-900 dark:text-gray-100 font-medium">{displayEmail}</span>
                   {isCustomUser && (
@@ -201,7 +201,7 @@ export const AdminUsers: React.FC = () => {
             <div className="flex justify-end gap-3">
               <button 
                 onClick={() => setUserToDelete(null)}
-                className="px-4 py-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:bg-slate-950 rounded-md transition-colors font-medium"
+                className="px-4 py-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-slate-800/50 rounded-md transition-colors font-medium"
               >
                 {t('cancel')}
               </button>

@@ -54,7 +54,7 @@ export const RealTimeClock: React.FC = () => {
   return (
     <button 
       onClick={toggleFullscreen}
-      className="font-mono text-xl font-bold text-orange-500 hover:text-orange-400 transition-colors px-4 py-1 rounded-md bg-slate-800 border border-slate-700 shadow-inner"
+      className="font-mono text-2xl font-bold text-orange-500 hover:text-orange-400 transition-all px-6 py-2 rounded-xl bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 shadow-sm hover:shadow-md hover:scale-105"
       title="Pantalla completa"
     >
       {formattedTime}

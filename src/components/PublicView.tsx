@@ -262,7 +262,7 @@ export const PublicView: React.FC<{ rally: Rally }> = ({ rally }) => {
                   className={`px-4 py-2 rounded-md text-sm font-bold transition-colors whitespace-nowrap ${
                     activeStageId === stage.id
                       ? 'bg-slate-800 text-white'
-                      : 'bg-white dark:bg-slate-900 text-slate-700 border border-gray-200 dark:border-slate-700 hover:bg-gray-50 dark:bg-slate-800/50'
+                      : 'bg-white dark:bg-slate-900 text-slate-700 border border-gray-200 dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-slate-800/50'
                   }`}
                 >
                   {stage.identifier}
@@ -296,7 +296,7 @@ export const PublicView: React.FC<{ rally: Rally }> = ({ rally }) => {
                         <tr><td colSpan={5} className="px-4 py-8 text-center text-gray-500 dark:text-gray-400">{t('noTimesRecorded')}</td></tr>
                       )}
                       {stageResults.map((row) => (
-                        <tr key={row.participantId} className="hover:bg-gray-50 dark:bg-slate-800/50">
+                        <tr key={row.participantId} className="hover:bg-gray-50 dark:hover:bg-slate-800/50">
                           <td className="px-4 py-3 text-center font-bold text-gray-900 dark:text-gray-100">{row.isDnf ? '-' : row.pos}</td>
                           <td className="px-4 py-3">
                             <div className="font-bold text-gray-900 dark:text-gray-100">{row.driverName}</div>
@@ -352,7 +352,7 @@ export const PublicView: React.FC<{ rally: Rally }> = ({ rally }) => {
                         <tr><td colSpan={5} className="px-4 py-8 text-center text-gray-500 dark:text-gray-400">{t('noOverallResults')}</td></tr>
                       )}
                       {overallResults.map((row) => (
-                        <tr key={row.participantId} className="hover:bg-gray-50 dark:bg-slate-800/50">
+                        <tr key={row.participantId} className="hover:bg-gray-50 dark:hover:bg-slate-800/50">
                           <td className="px-4 py-3 text-center">
                             {row.isDnf ? (
                               <span className="text-gray-400 font-bold">-</span>
@@ -431,7 +431,7 @@ export const PublicView: React.FC<{ rally: Rally }> = ({ rally }) => {
                   }
 
                   return latestOverall.map((row) => (
-                    <tr key={row.participantId} className="hover:bg-gray-50 dark:bg-slate-800/50">
+                    <tr key={row.participantId} className="hover:bg-gray-50 dark:hover:bg-slate-800/50">
                       <td className="px-4 py-3 text-center">
                         {row.isDnf ? (
                           <span className="text-gray-400 font-bold">-</span>
@@ -501,7 +501,7 @@ export const PublicView: React.FC<{ rally: Rally }> = ({ rally }) => {
                   const results = calculateStageResults(rally, stage.id).filter(r => !r.isDnf);
                   const winner = results[0];
                   return (
-                    <tr key={stage.id} className="hover:bg-gray-50 dark:bg-slate-800/50">
+                    <tr key={stage.id} className="hover:bg-gray-50 dark:hover:bg-slate-800/50">
                       <td className="px-4 py-3 font-bold text-gray-900 dark:text-gray-100">{stage.identifier} - {stage.name}</td>
                       {winner ? (
                         <>
@@ -544,7 +544,7 @@ export const PublicView: React.FC<{ rally: Rally }> = ({ rally }) => {
               </thead>
               <tbody className="divide-y divide-gray-100 dark:divide-slate-800">
                 {rally.participants.map((p, idx) => (
-                  <tr key={p.id} className="hover:bg-gray-50 dark:bg-slate-800/50">
+                  <tr key={p.id} className="hover:bg-gray-50 dark:hover:bg-slate-800/50">
                     <td className="px-4 py-3 text-center font-bold text-gray-900 dark:text-gray-100">{idx + 1}</td>
                     <td className="px-4 py-3">
                       <div className="font-bold text-gray-900 dark:text-gray-100">{p.driverName}</div>
@@ -620,7 +620,7 @@ export const PublicView: React.FC<{ rally: Rally }> = ({ rally }) => {
                   }
 
                   return allPenalties.map((item, idx) => (
-                    <tr key={`${item.id}-${idx}`} className="hover:bg-gray-50 dark:bg-slate-800/50">
+                    <tr key={`${item.id}-${idx}`} className="hover:bg-gray-50 dark:hover:bg-slate-800/50">
                       <td className="px-4 py-3 font-bold text-gray-900 dark:text-gray-100">{item.participant?.driverName}</td>
                       <td className="px-4 py-3 text-gray-600 dark:text-gray-400">{item.location}</td>
                       <td className="px-4 py-3 text-gray-600 dark:text-gray-400">{item.penalty?.name}</td>
@@ -662,7 +662,7 @@ export const PublicView: React.FC<{ rally: Rally }> = ({ rally }) => {
                     const participant = rally.participants.find(p => p.id === st.participantId);
                     const stage = rally.stages.find(s => s.id === st.stageId);
                     return (
-                      <tr key={st.id} className="hover:bg-gray-50 dark:bg-slate-800/50">
+                      <tr key={st.id} className="hover:bg-gray-50 dark:hover:bg-slate-800/50">
                         <td className="px-4 py-3 font-bold text-gray-900 dark:text-gray-100">{participant?.driverName}</td>
                         <td className="px-4 py-3 text-gray-600 dark:text-gray-400">{participant?.car}</td>
                         <td className="px-4 py-3 text-red-600 font-medium">{stage?.identifier}</td>

@@ -42,7 +42,7 @@ const PenaltySelect: React.FC<{
             <div className="text-xs text-gray-500 dark:text-gray-400 p-2 italic">{t('noTimePenalties')}</div>
           ) : (
             timePenalties.map(pen => (
-              <label key={pen.id} className="flex items-center gap-2 p-2 hover:bg-gray-50 dark:bg-slate-800/50 cursor-pointer text-sm rounded-md">
+              <label key={pen.id} className="flex items-center gap-2 p-2 hover:bg-gray-50 dark:hover:bg-slate-800/50 cursor-pointer text-sm rounded-md">
                 <input 
                   type="checkbox" 
                   checked={selectedIds.includes(pen.id)} 
@@ -212,7 +212,7 @@ export const AdminTimeEntry: React.FC<{ rally: Rally; setRally: React.Dispatch<R
               className={`px-4 py-2 rounded-md text-sm font-bold transition-colors whitespace-nowrap ${
                 activeStageId === stage.id
                   ? 'bg-slate-800 text-white'
-                  : 'bg-white dark:bg-slate-900 text-slate-700 border border-gray-200 dark:border-slate-700 hover:bg-gray-50 dark:bg-slate-800/50'
+                  : 'bg-white dark:bg-slate-900 text-slate-700 border border-gray-200 dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-slate-800/50'
               }`}
             >
               {stage.identifier} - {stage.name}
@@ -264,7 +264,7 @@ export const AdminTimeEntry: React.FC<{ rally: Rally; setRally: React.Dispatch<R
               const inputDisabled = isDnf || hasSuperRally;
               
               return (
-                <tr key={p.id} className={`transition-colors ${isConfirmed ? 'bg-green-50/30' : 'hover:bg-gray-50 dark:bg-slate-800/50'}`}>
+                <tr key={p.id} className={`transition-colors ${isConfirmed ? 'bg-green-50/30' : 'hover:bg-gray-50 dark:hover:bg-slate-800/50'}`}>
                   <td className="px-4 py-4">
                     <div className="font-semibold text-gray-900 dark:text-gray-100">{p.driverName}</div>
                     {p.hasCoDriver && <div className="text-xs text-gray-500 dark:text-gray-400">{p.coDriverName}</div>}

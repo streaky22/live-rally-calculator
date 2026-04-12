@@ -92,7 +92,7 @@ export const AdminStartList: React.FC<{ rally: Rally; setRally: React.Dispatch<R
                 onDrop={(e) => handleDrop(e, index)}
                 onDragEnd={handleDragEnd}
                 className={`transition-colors cursor-move ${
-                  draggedIndex === index ? 'opacity-50 bg-gray-100 dark:bg-slate-950' : 'hover:bg-gray-50 dark:bg-slate-800/50'
+                  draggedIndex === index ? 'opacity-50 bg-gray-100 dark:bg-slate-950' : 'hover:bg-gray-50 dark:hover:bg-slate-800/50'
                 } ${
                   dragOverIndex === index && draggedIndex !== index 
                     ? dragOverIndex > draggedIndex! 
