@@ -55,10 +55,62 @@ export const PublicView: React.FC<{ rally: Rally }> = ({ rally }) => {
 
       let currentY = 20;
 
-      // 1. Overall Classification
+      // 0. Rally & Stages
       doc.setFontSize(20);
       doc.text(rallyName, 14, currentY);
       currentY += 15;
+
+      currentY = addTitle(t('appTitle'), currentY);
+      
+      const stagesBody = rally.stages.map(stage => [
+        stage.identifier,
+        stage.name
+      ]);
+
+      autoTable(doc, {
+        startY: currentY,
+        head: [[t('stage'), t('name')]],
+        body: stagesBody,
+        theme: 'striped',
+        headStyles: { fillColor: [30, 41, 59] }, // slate-800
+        styles: { fontSize: 9 },
+      });
+      
+      if ((doc as any).lastAutoTable) {
+        currentY = (doc as any).lastAutoTable.finalY + 15;
+      } else {
+        currentY += 20;
+      }
+
+      // 0.5 Start List
+      if (rally.participants.length > 0) {
+        if (currentY > 250) { doc.addPage(); currentY = 20; }
+        currentY = addTitle(t('tabStartList'), currentY);
+        
+        const startListBody = [...rally.participants]
+          .map((p, index) => [
+            (index + 1).toString(),
+            `${p.driverName}${p.coDriverName ? ` / ${p.coDriverName}` : ''}`,
+            p.car
+          ]);
+
+        autoTable(doc, {
+          startY: currentY,
+          head: [['#', t('driverCoDriver'), t('car')]],
+          body: startListBody,
+          theme: 'striped',
+          headStyles: { fillColor: [30, 41, 59] }, // slate-800
+          styles: { fontSize: 9 },
+        });
+        
+        if ((doc as any).lastAutoTable) {
+          currentY = (doc as any).lastAutoTable.finalY + 15;
+        } else {
+          currentY += 20;
+        }
+      }
+
+      // 1. Overall Classification
       
       const latestStageIndex = rally.stages.length - 1;
       if (latestStageIndex >= 0) {
