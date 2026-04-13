@@ -16,6 +16,8 @@ import { doc, onSnapshot, setDoc } from 'firebase/firestore';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { RealTimeClock } from './components/RealTimeClock';
 import { OverlayClock } from './components/OverlayClock';
+import { OverlayStage } from './components/OverlayStage';
+import { OverlayOverall } from './components/OverlayOverall';
 
 const DEFAULT_PENALTIES: PenaltyConfig[] = [
   { id: 'p1', name: 'CH Tarde', type: 'TC_LATE', timeValueMs: 10000, calculationMethod: 'PER_MINUTE' },
@@ -194,10 +196,18 @@ export default function App() {
   };
 
   // Check if we are in overlay mode
-  const isOverlay = new URLSearchParams(window.location.search).get('overlay') === 'clock';
+  const overlayType = new URLSearchParams(window.location.search).get('overlay');
 
-  if (isOverlay) {
+  if (overlayType === 'clock') {
     return <OverlayClock />;
+  }
+
+  if (overlayType === 'stage' && rally) {
+    return <OverlayStage rally={rally} />;
+  }
+
+  if (overlayType === 'overall' && rally) {
+    return <OverlayOverall rally={rally} />;
   }
 
   if (!rally) {
