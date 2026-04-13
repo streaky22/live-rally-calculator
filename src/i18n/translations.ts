@@ -178,7 +178,17 @@ export const translations = {
     tcEntry: "TC Entry",
     defineTCEarly: "Please define an early arrival penalty rule first.",
     defineTCLate: "Please define a late arrival penalty rule first.",
-    addTCsFirst: "Please add time controls first."
+    addTCsFirst: "Please add time controls first.",
+    
+    // Overlays
+    waitingStageData: "Waiting for stage data...",
+    stageClassification: "Stage Classification (Top 10)",
+    overallAfterStage: "Overall after",
+    overallClassificationTop10: "Overall Classification (Top 10)",
+    configError: "⚠️ Configuration Error",
+    stageNotFound: "Stage not found.",
+    stageNotFoundOverall: "Stage not found for overall.",
+    makeSureToAdd: "Make sure to add"
   },
   es: {
     appTitle: "Calculadora de Rally",
@@ -357,7 +367,17 @@ export const translations = {
     tcEntry: "Tiempos CH",
     defineTCEarly: "Por favor, define primero una regla de penalización por adelanto.",
     defineTCLate: "Por favor, define primero una regla de penalización por retraso.",
-    addTCsFirst: "Por favor, añade controles horarios primero."
+    addTCsFirst: "Por favor, añade controles horarios primero.",
+    
+    // Overlays
+    waitingStageData: "Esperando datos del tramo...",
+    stageClassification: "Clasificación del Tramo (Top 10)",
+    overallAfterStage: "General tras",
+    overallClassificationTop10: "Clasificación General (Top 10)",
+    configError: "⚠️ Error de Configuración",
+    stageNotFound: "No se ha encontrado el tramo.",
+    stageNotFoundOverall: "No se ha encontrado el tramo para la general.",
+    makeSureToAdd: "Asegúrate de añadir"
   },
   ca: {
     appTitle: "Calculadora de Ral·li",
@@ -536,6 +556,16 @@ export const translations = {
     tcEntry: "Temps CH",
     defineTCEarly: "Si us plau, defineix primer una regla de penalització per avançament.",
     defineTCLate: "Si us plau, defineix primer una regla de penalització per retard.",
-    addTCsFirst: "Si us plau, afegeix controls horaris primer."
+    addTCsFirst: "Si us plau, afegeix controls horaris primer.",
+    
+    // Overlays
+    waitingStageData: "Esperant dades del tram...",
+    stageClassification: "Classificació del Tram (Top 10)",
+    overallAfterStage: "General després de",
+    overallClassificationTop10: "Classificació General (Top 10)",
+    configError: "⚠️ Error de Configuració",
+    stageNotFound: "No s'ha trobat el tram.",
+    stageNotFoundOverall: "No s'ha trobat el tram per a la general.",
+    makeSureToAdd: "Assegura't d'afegir"
   }
 };

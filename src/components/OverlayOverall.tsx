@@ -2,12 +2,14 @@ import React from 'react';
 import { Rally } from '../types';
 import { calculateOverallResults } from '../utils/calculations';
 import { formatTimeMs, formatDiffMs } from '../utils/formatters';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface OverlayOverallProps {
   rally: Rally;
 }
 
 export const OverlayOverall: React.FC<OverlayOverallProps> = ({ rally }) => {
+  const { t } = useLanguage();
   const urlStageId = new URLSearchParams(window.location.search).get('stageId');
   
   const stageIndex = rally.stages.findIndex(s => 
@@ -21,9 +23,9 @@ export const OverlayOverall: React.FC<OverlayOverallProps> = ({ rally }) => {
     return (
       <div className="w-screen h-screen flex items-center justify-center bg-transparent">
         <div className="bg-slate-900/90 p-6 rounded-xl border-l-4 border-red-500 shadow-2xl">
-          <h2 className="text-white font-bold text-xl mb-2">⚠️ Error de Configuración</h2>
-          <p className="text-slate-300">No se ha encontrado el tramo para la general.</p>
-          <p className="text-slate-400 text-sm mt-2">Asegúrate de añadir <code className="bg-black px-1 rounded text-blue-400">&stageId=SS1</code> a la URL en OBS.</p>
+          <h2 className="text-white font-bold text-xl mb-2">{t('configError')}</h2>
+          <p className="text-slate-300">{t('stageNotFoundOverall')}</p>
+          <p className="text-slate-400 text-sm mt-2">{t('makeSureToAdd')} <code className="bg-black px-1 rounded text-blue-400">&stageId=SS1</code> a la URL en OBS.</p>
         </div>
       </div>
     );
@@ -35,8 +37,8 @@ export const OverlayOverall: React.FC<OverlayOverallProps> = ({ rally }) => {
   return (
     <div className="w-screen h-screen flex flex-col justify-start items-start p-8 bg-transparent">
       <div className="bg-slate-900/80 backdrop-blur-sm border-l-4 border-blue-500 p-4 rounded-r-lg shadow-xl mb-4 w-[500px]">
-        <h2 className="text-white text-2xl font-bold uppercase tracking-wider">General tras {stage.identifier}</h2>
-        <p className="text-blue-400 text-sm font-semibold uppercase tracking-widest">Clasificación General (Top 10)</p>
+        <h2 className="text-white text-2xl font-bold uppercase tracking-wider">{t('overallAfterStage')} {stage.identifier}</h2>
+        <p className="text-blue-400 text-sm font-semibold uppercase tracking-widest">{t('overallClassificationTop10')}</p>
       </div>
 
       <div className="flex flex-col gap-1 w-[500px]">
@@ -66,7 +68,7 @@ export const OverlayOverall: React.FC<OverlayOverallProps> = ({ rally }) => {
         ))}
         {validResults.length === 0 && (
           <div className="bg-slate-800/80 backdrop-blur-sm border-l-4 border-slate-500 p-4 rounded-r-lg shadow-lg">
-            <p className="text-slate-300 italic">No hay tiempos registrados aún.</p>
+            <p className="text-slate-300 italic">{t('noTimesRecorded')}</p>
           </div>
         )}
       </div>

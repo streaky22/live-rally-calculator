@@ -2,12 +2,14 @@ import React from 'react';
 import { Rally } from '../types';
 import { calculateStageResults } from '../utils/calculations';
 import { formatTimeMs, formatDiffMs } from '../utils/formatters';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface OverlayStageProps {
   rally: Rally;
 }
 
 export const OverlayStage: React.FC<OverlayStageProps> = ({ rally }) => {
+  const { t } = useLanguage();
   // Use the stageId from the URL parameter (can be ID or identifier like 'SS1')
   const urlStageId = new URLSearchParams(window.location.search).get('stageId');
   
@@ -20,9 +22,9 @@ export const OverlayStage: React.FC<OverlayStageProps> = ({ rally }) => {
     return (
       <div className="w-screen h-screen flex items-center justify-center bg-transparent">
         <div className="bg-slate-900/90 p-6 rounded-xl border-l-4 border-red-500 shadow-2xl">
-          <h2 className="text-white font-bold text-xl mb-2">⚠️ Error de Configuración</h2>
-          <p className="text-slate-300">No se ha encontrado el tramo.</p>
-          <p className="text-slate-400 text-sm mt-2">Asegúrate de añadir <code className="bg-black px-1 rounded text-orange-400">&stageId=SS1</code> a la URL en OBS.</p>
+          <h2 className="text-white font-bold text-xl mb-2">{t('configError')}</h2>
+          <p className="text-slate-300">{t('stageNotFound')}</p>
+          <p className="text-slate-400 text-sm mt-2">{t('makeSureToAdd')} <code className="bg-black px-1 rounded text-orange-400">&stageId=SS1</code> a la URL en OBS.</p>
         </div>
       </div>
     );
@@ -35,7 +37,7 @@ export const OverlayStage: React.FC<OverlayStageProps> = ({ rally }) => {
     <div className="w-screen h-screen flex flex-col justify-start items-start p-8 bg-transparent">
       <div className="bg-slate-900/80 backdrop-blur-sm border-l-4 border-orange-500 p-4 rounded-r-lg shadow-xl mb-4 w-[500px]">
         <h2 className="text-white text-2xl font-bold uppercase tracking-wider">{stage.identifier} - {stage.name}</h2>
-        <p className="text-orange-400 text-sm font-semibold uppercase tracking-widest">Clasificación del Tramo (Top 10)</p>
+        <p className="text-orange-400 text-sm font-semibold uppercase tracking-widest">{t('stageClassification')}</p>
       </div>
 
       <div className="flex flex-col gap-1 w-[500px]">
@@ -65,7 +67,7 @@ export const OverlayStage: React.FC<OverlayStageProps> = ({ rally }) => {
         ))}
         {validResults.length === 0 && (
           <div className="bg-slate-800/80 backdrop-blur-sm border-l-4 border-slate-500 p-4 rounded-r-lg shadow-lg">
-            <p className="text-slate-300 italic">No hay tiempos registrados aún.</p>
+            <p className="text-slate-300 italic">{t('noTimesRecorded')}</p>
           </div>
         )}
       </div>

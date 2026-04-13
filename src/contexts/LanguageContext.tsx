@@ -11,6 +11,10 @@ const LanguageContext = createContext<LanguageContextType | undefined>(undefined
 
 export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [language, setLanguage] = useState<Language>(() => {
+    const urlLang = new URLSearchParams(window.location.search).get('lang');
+    if (urlLang === 'es' || urlLang === 'en' || urlLang === 'ca') {
+      return urlLang as Language;
+    }
     const saved = localStorage.getItem('rally_language');
     return (saved as Language) || 'es'; // Defaulting to Spanish since it was the original
   });
