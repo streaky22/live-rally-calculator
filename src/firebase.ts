@@ -1,7 +1,11 @@
 import { initializeApp, getApps } from 'firebase/app';
 import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
-import firebaseConfig from '../firebase-applet-config.json';
+
+// Use import.meta.glob to optionally import the config file without breaking the build if it's missing (e.g., in Vercel)
+const configFiles = import.meta.glob('../firebase-applet-config.json', { eager: true });
+const firebaseConfig: any = configFiles['../firebase-applet-config.json'] || {};
+const configData = firebaseConfig.default || firebaseConfig;
 
 // Helper to ignore "TODO_" placeholders from the exported JSON
 const getRealValue = (jsonVal: string | undefined, envVal: string | undefined) => {
@@ -12,13 +16,13 @@ const getRealValue = (jsonVal: string | undefined, envVal: string | undefined) =
 };
 
 const config = {
-  apiKey: getRealValue(firebaseConfig.apiKey, import.meta.env.VITE_FIREBASE_API_KEY),
-  authDomain: getRealValue(firebaseConfig.authDomain, import.meta.env.VITE_FIREBASE_AUTH_DOMAIN),
-  projectId: getRealValue(firebaseConfig.projectId, import.meta.env.VITE_FIREBASE_PROJECT_ID),
-  storageBucket: getRealValue(firebaseConfig.storageBucket, import.meta.env.VITE_FIREBASE_STORAGE_BUCKET),
-  messagingSenderId: getRealValue(firebaseConfig.messagingSenderId, import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID),
-  appId: getRealValue(firebaseConfig.appId, import.meta.env.VITE_FIREBASE_APP_ID),
-  firestoreDatabaseId: getRealValue(firebaseConfig.firestoreDatabaseId, import.meta.env.VITE_FIRESTORE_DATABASE_ID)
+  apiKey: getRealValue(configData.apiKey, import.meta.env.VITE_FIREBASE_API_KEY),
+  authDomain: getRealValue(configData.authDomain, import.meta.env.VITE_FIREBASE_AUTH_DOMAIN),
+  projectId: getRealValue(configData.projectId, import.meta.env.VITE_FIREBASE_PROJECT_ID),
+  storageBucket: getRealValue(configData.storageBucket, import.meta.env.VITE_FIREBASE_STORAGE_BUCKET),
+  messagingSenderId: getRealValue(configData.messagingSenderId, import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID),
+  appId: getRealValue(configData.appId, import.meta.env.VITE_FIREBASE_APP_ID),
+  firestoreDatabaseId: getRealValue(configData.firestoreDatabaseId, import.meta.env.VITE_FIRESTORE_DATABASE_ID)
 };
 
 const isValidConfig = !!config.apiKey && !!config.projectId;
