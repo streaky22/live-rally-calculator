@@ -15,6 +15,7 @@ import { db, auth, signInWithGoogle, logOut, signInWithEmailAndPassword } from '
 import { doc, onSnapshot, setDoc } from 'firebase/firestore';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { RealTimeClock } from './components/RealTimeClock';
+import { OverlayClock } from './components/OverlayClock';
 
 const DEFAULT_PENALTIES: PenaltyConfig[] = [
   { id: 'p1', name: 'CH Tarde', type: 'TC_LATE', timeValueMs: 10000, calculationMethod: 'PER_MINUTE' },
@@ -191,6 +192,13 @@ export default function App() {
       setLoginError(t('invalidLogin'));
     }
   };
+
+  // Check if we are in overlay mode
+  const isOverlay = new URLSearchParams(window.location.search).get('overlay') === 'clock';
+
+  if (isOverlay) {
+    return <OverlayClock />;
+  }
 
   if (!rally) {
     return (
