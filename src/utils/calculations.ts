@@ -13,6 +13,7 @@ export interface CalculatedResult {
   isDnf?: boolean;
   hasSuperRally?: boolean;
   penaltyTimeMs?: number;
+  dnfStageIdentifier?: string;
 }
 
 export const calculateStageResults = (rally: Rally, stageId: string): CalculatedResult[] => {
@@ -110,6 +111,7 @@ export const calculateOverallResults = (rally: Rally, upToStageIndex: number): C
   
   const participantTotals: Record<string, number> = {};
   const participantDnf: Record<string, boolean> = {};
+  const participantDnfStage: Record<string, string> = {};
   const participantSuperRally: Record<string, boolean> = {};
   const participantPenaltyTime: Record<string, number> = {};
   
@@ -121,10 +123,16 @@ export const calculateOverallResults = (rally: Rally, upToStageIndex: number): C
   });
 
   stagesToInclude.forEach(stageId => {
+    const stage = rally.stages.find(s => s.id === stageId);
     const stageResults = calculateStageResults(rally, stageId);
     stageResults.forEach(sr => {
       if (sr.isDnf) {
-        participantDnf[sr.participantId] = true;
+        if (!participantDnf[sr.participantId]) {
+          participantDnf[sr.participantId] = true;
+          if (stage) {
+            participantDnfStage[sr.participantId] = stage.identifier;
+          }
+        }
       } else {
         participantTotals[sr.participantId] += sr.timeMs;
       }
@@ -147,6 +155,7 @@ export const calculateOverallResults = (rally: Rally, upToStageIndex: number): C
 
   // Filter out participants who don't have times for ALL included stages
   const validParticipantIds = rally.participants.filter(p => {
+    if (participantDnf[p.id]) return true;
     return stagesToInclude.every(stageId => 
       rally.stageTimes.some(st => st.stageId === stageId && st.participantId === p.id)
     );
@@ -166,7 +175,8 @@ export const calculateOverallResults = (rally: Rally, upToStageIndex: number): C
       change: 0,
       isDnf: participantDnf[pId],
       hasSuperRally: participantSuperRally[pId],
-      penaltyTimeMs: participantPenaltyTime[pId]
+      penaltyTimeMs: participantPenaltyTime[pId],
+      dnfStageIdentifier: participantDnfStage[pId]
     };
   });
 
